@@ -25,7 +25,7 @@
   h2 { text-align: center; margin-top: 0; }
   .step { display: none; }
   .step.active { display: block; }
-  input {
+  input, select {
     width: 100%;
     padding: 12px;
     border: 1px solid #ddd;
@@ -79,10 +79,33 @@
 <div class="card">
   <h2>📋 Absensi Karyawan</h2>
 
-  <!-- STEP 1: Input Nama -->
-  <div class="step active" id="step1">
-    <input type="text" id="namaInput" placeholder="Masukkan nama lengkap">
-    <button onclick="goToStep(2)">Lanjut</button>
+  <!-- STEP 1: Registrasi (HP baru) -->
+  <div class="step active" id="step1register">
+    <p class="info-text">HP ini belum terdaftar. Pilih nama Anda dan buat PIN.</p>
+    <select id="namaSelect">
+      <option value="">-- Pilih Nama --</option>
+      <option value="Karyo">Karyo</option>
+      <option value="Dimas">Dimas</option>
+      <option value="Oky">Oky</option>
+      <option value="Vero">Vero</option>
+      <option value="April">April</option>
+      <option value="Yuli">Yuli</option>
+      <option value="Rayhan">Rayhan</option>
+      <option value="Bimar">Bimar</option>
+      <option value="Budi">Budi</option>
+    </select>
+    <input type="password" id="pinSetup1" placeholder="Buat PIN (4 digit)" inputmode="numeric" maxlength="4">
+    <input type="password" id="pinSetup2" placeholder="Ulangi PIN" inputmode="numeric" maxlength="4">
+    <div id="registerErrorBox"></div>
+    <button onclick="daftarDevice()">Daftarkan HP Ini</button>
+  </div>
+
+  <!-- STEP 1: Login (HP sudah terdaftar) -->
+  <div class="step" id="step1login">
+    <p class="info-text" id="welcomeText">Selamat datang!</p>
+    <input type="password" id="pinLogin" placeholder="Masukkan PIN Anda" inputmode="numeric" maxlength="4">
+    <div id="loginErrorBox"></div>
+    <button onclick="verifikasiPin()">Lanjut</button>
   </div>
 
   <!-- STEP 2: Pilih Jenis Absen -->
@@ -154,17 +177,53 @@ let photoBase64 = '';
 let stream = null;
 let html5QrCode = null;
 
+// ===== CEK STATUS DEVICE SAAT HALAMAN DIBUKA =====
+window.addEventListener('DOMContentLoaded', () => {
+  const savedNama = localStorage.getItem('absensi_nama');
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  if (savedNama) {
+    nama = savedNama;
+    document.getElementById('welcomeText').innerText = 'Selamat datang, ' + savedNama + '!';
+    document.getElementById('step1login').classList.add('active');
+  } else {
+    document.getElementById('step1register').classList.add('active');
+  }
+});
+
+function daftarDevice() {
+  const namaPilih = document.getElementById('namaSelect').value;
+  const pin1 = document.getElementById('pinSetup1').value.trim();
+  const pin2 = document.getElementById('pinSetup2').value.trim();
+  const errBox = document.getElementById('registerErrorBox');
+  errBox.innerHTML = '';
+
+  if (!namaPilih) { errBox.innerHTML = '<div class="status fail">Pilih nama dulu</div>'; return; }
+  if (!/^\d{4}$/.test(pin1)) { errBox.innerHTML = '<div class="status fail">PIN harus 4 digit angka</div>'; return; }
+  if (pin1 !== pin2) { errBox.innerHTML = '<div class="status fail">PIN tidak cocok, coba lagi</div>'; return; }
+
+  localStorage.setItem('absensi_nama', namaPilih);
+  localStorage.setItem('absensi_pin', pin1);
+  nama = namaPilih;
+
+  showStep(2);
+}
+
+function verifikasiPin() {
+  const pinInput = document.getElementById('pinLogin').value.trim();
+  const savedPin = localStorage.getItem('absensi_pin');
+  const errBox = document.getElementById('loginErrorBox');
+
+  if (pinInput !== savedPin) {
+    errBox.innerHTML = '<div class="status fail">PIN salah, coba lagi</div>';
+    return;
+  }
+  errBox.innerHTML = '';
+  showStep(2);
+}
+
 function showStep(num) {
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
   document.getElementById('step' + num).classList.add('active');
-}
-
-function goToStep(num) {
-  if (num === 2) {
-    nama = document.getElementById('namaInput').value.trim();
-    if (!nama) { alert('Nama wajib diisi'); return; }
-    showStep(2);
-  }
 }
 
 function pilihJenis(jenis, perluQr, perluKeterangan) {
