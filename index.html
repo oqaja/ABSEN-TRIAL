@@ -46,6 +46,15 @@
     margin-top: 8px;
   }
   button:disabled { background: #aaa; }
+  .jenis-btn {
+    background: white;
+    color: #1a1a1a;
+    border: 2px solid #e5e7eb;
+    text-align: left;
+    padding: 14px 16px;
+  }
+  .jenis-btn:hover { border-color: #2563eb; }
+  .jenis-btn.selected { border-color: #2563eb; background: #eff6ff; }
   #qr-reader { width: 100%; border-radius: 8px; overflow: hidden; }
   #camera-view, #captured-photo {
     width: 100%;
@@ -62,6 +71,7 @@
   .status.ok { background: #dcfce7; color: #15803d; }
   .status.fail { background: #fee2e2; color: #b91c1c; }
   .info-text { font-size: 14px; color: #666; text-align: center; margin: 8px 0; }
+  .jenis-label { font-size: 13px; color: #888; margin: 14px 0 6px; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -75,21 +85,37 @@
     <button onclick="goToStep(2)">Lanjut</button>
   </div>
 
-  <!-- STEP 2: Scan QR -->
+  <!-- STEP 2: Pilih Jenis Absen -->
   <div class="step" id="step2">
+    <p class="info-text">Pilih jenis absensi</p>
+
+    <div class="jenis-label">Di Kantor</div>
+    <button class="jenis-btn" onclick="pilihJenis('Absen Masuk', true)">🟢 Absen Masuk</button>
+    <button class="jenis-btn" onclick="pilihJenis('Absen Pulang', true)">🔴 Absen Pulang</button>
+    <button class="jenis-btn" onclick="pilihJenis('Dinas Lapangan dari Kantor', true)">🚗 Dinas Lapangan dari Kantor</button>
+    <button class="jenis-btn" onclick="pilihJenis('Ijin dari Kantor', true)">📝 Ijin dari Kantor</button>
+
+    <div class="jenis-label">Di Luar Kantor</div>
+    <button class="jenis-btn" onclick="pilihJenis('Dinas Lapangan dari Rumah', false)">🏠 Dinas Lapangan dari Rumah</button>
+    <button class="jenis-btn" onclick="pilihJenis('Ijin dari Rumah', false)">🏠 Ijin dari Rumah</button>
+    <button class="jenis-btn" onclick="pilihJenis('Pulang dari Luar', false)">🔚 Pulang dari Luar</button>
+  </div>
+
+  <!-- STEP 3: Scan QR (kondisional) -->
+  <div class="step" id="step3">
     <p class="info-text">Scan QR code yang ada di lokasi kantor</p>
     <div id="qr-reader"></div>
     <div id="qrResultBox"></div>
   </div>
 
-  <!-- STEP 3: Lokasi -->
-  <div class="step" id="step3">
+  <!-- STEP 4: Lokasi -->
+  <div class="step" id="step4">
     <p class="info-text">Mengambil lokasi GPS...</p>
     <div id="locationResultBox"></div>
   </div>
 
-  <!-- STEP 4: Selfie -->
-  <div class="step" id="step4">
+  <!-- STEP 5: Selfie -->
+  <div class="step" id="step5">
     <p class="info-text">Ambil foto selfie</p>
     <video id="camera-view" autoplay playsinline></video>
     <canvas id="canvas" style="display:none;"></canvas>
@@ -99,8 +125,8 @@
     <button id="submitBtn" style="display:none;" onclick="submitAbsensi()">✅ Submit Absensi</button>
   </div>
 
-  <!-- STEP 5: Selesai -->
-  <div class="step" id="step5">
+  <!-- STEP 6: Selesai -->
+  <div class="step" id="step6">
     <div class="status ok" id="finalStatus">Absensi berhasil dikirim!</div>
   </div>
 </div>
@@ -110,6 +136,8 @@
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzkn2WiMz8odZt3EDZX5MwVDPITiFQ9Qvcm2JsZ_E8qYsxUnWk-fkgj-dWhNiU_Oj8E/exec';
 
 let nama = '';
+let jenisAbsen = '';
+let butuhQr = false;
 let qrResult = '';
 let latitude = '';
 let longitude = '';
@@ -127,7 +155,20 @@ function goToStep(num) {
     nama = document.getElementById('namaInput').value.trim();
     if (!nama) { alert('Nama wajib diisi'); return; }
     showStep(2);
+  }
+}
+
+function pilihJenis(jenis, perluQr) {
+  jenisAbsen = jenis;
+  butuhQr = perluQr;
+
+  if (butuhQr) {
+    showStep(3);
     startQrScanner();
+  } else {
+    qrResult = ''; // tidak ada QR untuk jenis ini
+    showStep(4);
+    getLocation();
   }
 }
 
@@ -141,7 +182,7 @@ function startQrScanner() {
       html5QrCode.stop();
       document.getElementById('qrResultBox').innerHTML =
         '<div class="status ok">QR terbaca: ' + decodedText + '</div>';
-      setTimeout(() => { showStep(3); getLocation(); }, 800);
+      setTimeout(() => { showStep(4); getLocation(); }, 800);
     },
     (errorMessage) => { /* abaikan, dipanggil terus saat belum nemu QR */ }
   ).catch(err => {
@@ -162,7 +203,7 @@ function getLocation() {
       longitude = pos.coords.longitude;
       document.getElementById('locationResultBox').innerHTML =
         '<div class="status ok">Lokasi didapat: ' + latitude.toFixed(5) + ', ' + longitude.toFixed(5) + '</div>';
-      setTimeout(() => { showStep(4); startCamera(); }, 800);
+      setTimeout(() => { showStep(5); startCamera(); }, 800);
     },
     (err) => {
       document.getElementById('locationResultBox').innerHTML =
@@ -218,6 +259,8 @@ function submitAbsensi() {
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify({
       nama: nama,
+      jenisAbsen: jenisAbsen,
+      butuhQr: butuhQr,
       latitude: latitude,
       longitude: longitude,
       qrResult: qrResult,
@@ -229,15 +272,20 @@ function submitAbsensi() {
     if (stream) stream.getTracks().forEach(t => t.stop());
     const statusBox = document.getElementById('finalStatus');
     if (data.result === 'success') {
-      statusBox.className = data.qrStatus === 'VALID' ? 'status ok' : 'status fail';
-      statusBox.innerText = data.qrStatus === 'VALID'
-        ? '✅ Absensi berhasil! QR valid.'
-        : '⚠️ Absensi tercatat, tapi QR TIDAK VALID. Cek lokasi scan.';
+      if (!butuhQr) {
+        statusBox.className = 'status ok';
+        statusBox.innerText = '✅ Absensi (' + jenisAbsen + ') berhasil dikirim!';
+      } else {
+        statusBox.className = data.qrStatus === 'VALID' ? 'status ok' : 'status fail';
+        statusBox.innerText = data.qrStatus === 'VALID'
+          ? '✅ Absensi (' + jenisAbsen + ') berhasil! QR valid.'
+          : '⚠️ Absensi tercatat, tapi QR TIDAK VALID. Cek lokasi scan.';
+      }
     } else {
       statusBox.className = 'status fail';
       statusBox.innerText = '❌ Gagal: ' + data.message;
     }
-    showStep(5);
+    showStep(6);
   })
   .catch(err => {
     alert('Gagal mengirim data: ' + err);
