@@ -1301,39 +1301,30 @@ function computeDailyScore(dayRows) {
 }
 
 // Rata-ratakan skor harian ke semua hari kerja (Senin-Sabtu) sejak Juli 2026 sampai hari ini
-function hitungPersenPoin(allData) {
-  const START_YEAR = 2026, START_MONTH = 7;
+// Akumulasikan (jumlahkan, BUKAN rata-rata) poin harian, tapi CUMA untuk bulan berjalan.
+// Reset otomatis tiap tanggal 1, biar adil buat karyawan yang baru gabung.
+function hitungTotalPoin(allData) {
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth() + 1, todayDate = now.getDate();
 
   const byDate = new Map();
   allData.forEach(row => {
-    const key = row.tahun + '-' + row.bulan + '-' + row.tanggal;
+    if (row.tahun !== y || row.bulan !== m) return; // cuma pakai data bulan ini
+    const key = row.tanggal;
     if (!byDate.has(key)) byDate.set(key, []);
     byDate.get(key).push(row);
   });
 
-  const now = new Date();
-  let totalScore = 0, totalWorkingDays = 0;
-  let y = START_YEAR, m = START_MONTH;
+  let totalScore = 0;
+  for (let d = 1; d <= todayDate; d++) {
+    const dow = new Date(y, m - 1, d).getDay();
+    if (dow === 0) continue; // Minggu diskip
 
-  while (y < now.getFullYear() || (y === now.getFullYear() && m <= now.getMonth() + 1)) {
-    const isBulanIni = (y === now.getFullYear() && m === now.getMonth() + 1);
-    const lastDayInMonth = new Date(y, m, 0).getDate();
-    const lastDayToCheck = isBulanIni ? now.getDate() : lastDayInMonth;
-
-    for (let d = 1; d <= lastDayToCheck; d++) {
-      const dow = new Date(y, m - 1, d).getDay();
-      if (dow === 0) continue; // Minggu diskip
-
-      totalWorkingDays++;
-      const key = y + '-' + m + '-' + d;
-      const dayRows = byDate.get(key) || [];
-      totalScore += computeDailyScore(dayRows);
-    }
-
-    m++; if (m > 12) { m = 1; y++; }
+    const dayRows = byDate.get(d) || [];
+    totalScore += computeDailyScore(dayRows);
   }
 
-  return totalWorkingDays > 0 ? Math.round(totalScore / totalWorkingDays) : 0;
+  return totalScore;
 }
 
 // ===== LEADERBOARD =====
@@ -1377,8 +1368,8 @@ async function renderLeaderboard() {
   hintEl.style.display = 'none';
 
   const ranked = result.data
-    .map(emp => ({ nama: emp.nama, persen: hitungPersenPoin(emp.absensi) }))
-    .sort((a, b) => b.persen - a.persen || a.nama.localeCompare(b.nama));
+    .map(emp => ({ nama: emp.nama, poin: hitungTotalPoin(emp.absensi) }))
+    .sort((a, b) => b.poin - a.poin || a.nama.localeCompare(b.nama));
 
   const top3 = ranked.slice(0, 3);
   const rest = ranked.slice(3);
@@ -1392,7 +1383,7 @@ async function renderLeaderboard() {
       <div class="lb-medal">${medals[i]}</div>
       <div class="lb-avatar">${initial}</div>
       <div class="lb-top-name">${escapeHtml(emp.nama)}</div>
-      <div class="lb-top-persen">${emp.persen}</div>
+      <div class="lb-top-persen">${emp.poin}</div>
     </div>`;
   }).join('');
 
@@ -1404,7 +1395,7 @@ async function renderLeaderboard() {
       <div class="lb-rest-rank">${rank}</div>
       <div class="lb-rest-avatar">${initial}</div>
       <div class="lb-rest-name">${escapeHtml(emp.nama)}</div>
-      <div class="lb-rest-persen">${emp.persen}</div>
+      <div class="lb-rest-persen">${emp.poin}</div>
     </div>`;
   }).join('') : '';
 }
