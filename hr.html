@@ -22,6 +22,7 @@
     --radius: 18px;
     --radius-sm: 12px;
     --mint: #00c896;
+    --wa: #25D366;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body {
@@ -123,6 +124,26 @@
   .riwayat-lambat { font-size: 10px; font-weight: 700; color: var(--danger); background: var(--danger-light); padding: 2px 7px; border-radius: 6px; text-transform: none; letter-spacing: 0; }
   .riwayat-dinas-badge { font-size: 10px; font-weight: 700; color: var(--purple); background: var(--purple-light); padding: 2px 7px; border-radius: 6px; text-transform: none; letter-spacing: 0; }
   .riwayat-empty, .loading-text { text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px 0; }
+
+  /* ===== FAB WA + Halaman Laporan ===== */
+  .fab-wa {
+    position: fixed; bottom: 24px; right: 20px; width: 58px; height: 58px;
+    border-radius: 50%; background: var(--wa); display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45); cursor: pointer; z-index: 999; border: none;
+  }
+  .fab-wa:active { transform: scale(0.94); }
+  .fab-wa svg { width: 28px; height: 28px; fill: #fff; }
+
+  .report-textarea {
+    width: 100%; min-height: 340px; padding: 14px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border); background: var(--card-2); color: var(--text);
+    font-family: inherit; font-size: 14px; line-height: 1.6; resize: vertical;
+    outline: none; margin-bottom: 12px; white-space: pre-wrap;
+  }
+  .report-textarea:focus { border-color: var(--mint); }
+  .report-actions { display: flex; gap: 8px; }
+  .report-actions .btn { margin-top: 0; }
+  .copy-toast { text-align: center; font-size: 12px; color: var(--mint); margin-top: 8px; height: 16px; }
 </style>
 </head>
 <body>
@@ -174,6 +195,11 @@
     <div id="listErrorBox"></div>
     <div id="empList" style="margin-top:6px"></div>
   </div>
+
+  <!-- FAB: Kirim laporan absensi hari ini ke WhatsApp -->
+  <button class="fab-wa" id="fabWa" onclick="openLaporanWA()" title="Kirim laporan absensi ke WhatsApp">
+    <svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0012.04 2zm5.8 14.14c-.24.68-1.4 1.32-1.93 1.4-.5.08-1.11.11-1.79-.11a16.4 16.4 0 01-1.6-.59c-2.82-1.22-4.66-4.06-4.8-4.25-.14-.19-1.15-1.53-1.15-2.92 0-1.39.73-2.07.99-2.36.26-.28.57-.35.76-.35.19 0 .38 0 .55.01.18.01.42-.07.65.5.24.58.81 2 .88 2.15.07.14.12.31.02.5-.1.19-.15.31-.29.48-.14.17-.3.37-.43.5-.14.14-.29.29-.13.57.17.29.75 1.24 1.61 2 1.11.99 2.04 1.3 2.33 1.44.29.15.46.13.63-.07.17-.2.72-.83.91-1.12.19-.29.38-.24.63-.14.26.1 1.65.78 1.94.92.29.14.48.21.55.33.07.12.07.68-.17 1.35z"/></svg>
+  </button>
 </div>
 
 <!-- ===== DETAIL KARYAWAN ===== -->
@@ -192,6 +218,23 @@
   </div>
 
   <div id="detailRiwayat"></div>
+</div>
+
+<!-- ===== LAPORAN WA (preview + kirim) ===== -->
+<div class="page" id="page-report">
+  <div class="top-bar">
+    <div class="back-btn" onclick="backToHomeFromReport()">←</div>
+    <h1>Laporan ke WA</h1>
+  </div>
+  <div class="card">
+    <div class="card-title">📋 Preview Laporan <span class="muted">Bisa diedit dulu</span></div>
+    <textarea class="report-textarea" id="laporanText"></textarea>
+    <div class="report-actions">
+      <button class="btn btn-secondary" onclick="salinLaporan()">Salin Teks</button>
+      <button class="btn" onclick="kirimKeWA()">Kirim ke WhatsApp</button>
+    </div>
+    <div class="copy-toast" id="copyToast"></div>
+  </div>
 </div>
 
 <script>
@@ -530,6 +573,107 @@ function renderDetailRiwayat(absensi, month, year) {
       ${itemsHtml}
     </div>`;
   }).join('');
+}
+
+// ===== LAPORAN WA =====
+function greetingNow() {
+  const h = new Date().getHours();
+  if (h < 11) return 'Pagi';
+  if (h < 15) return 'Siang';
+  return 'Sore';
+}
+
+function buildLaporanText() {
+  const now = new Date();
+  const tanggalLabel = now.getDate() + ' ' + BULAN_NAMES[now.getMonth()] + ' ' + now.getFullYear();
+
+  const tidakMasuk = [];
+  const terlambat = [];
+  const dinas = [];
+  const ijin = [];
+
+  (todayCache || []).forEach(emp => {
+    const absensi = emp.absensi || [];
+    const hasMasuk = absensi.some(a => a.jenisAbsen === 'Absen Masuk');
+    const hasDinas = absensi.some(a => a.jenisAbsen === 'Dinas Lapangan dari Rumah');
+    const hasSakit = absensi.some(a => a.jenisAbsen === 'Sakit');
+    const hasIjin = absensi.some(a => a.jenisAbsen === 'Ijin dari Rumah' || a.jenisAbsen === 'Ijin dari Kantor');
+    const masukRow = absensi.find(a => a.jenisAbsen === 'Absen Masuk');
+
+    // 1. Tidak masuk kerja: sakit, atau sama sekali tidak ada absen (masuk/dinas/ijin)
+    if (hasSakit) {
+      tidakMasuk.push(emp.nama + ' - Sakit');
+    } else if (!hasMasuk && !hasDinas && !hasIjin) {
+      tidakMasuk.push(emp.nama);
+    }
+
+    // 2. Datang terlambat: absen masuk > 08:05
+    if (masukRow && isLambat(masukRow.jam, masukRow.menit)) {
+      terlambat.push(emp.nama);
+    }
+
+    // 3. Dinas luar / WFH
+    if (hasDinas) dinas.push(emp.nama);
+
+    // 5. Ijin per jam
+    if (hasIjin) ijin.push(emp.nama);
+  });
+
+  const fmt = (arr) => arr.map(n => '- ' + n).join('\n');
+
+  let text = 'Selamat ' + greetingNow() + ',\n';
+  text += 'Berikut report absensi tanggal ' + tanggalLabel + ':\n';
+
+  text += '1. Tidak masuk kerja (' + tidakMasuk.length + ' orang)\n';
+  if (tidakMasuk.length) text += fmt(tidakMasuk) + '\n';
+
+  text += '2. Datang terlambat (' + terlambat.length + ' orang)\n';
+  if (terlambat.length) text += fmt(terlambat) + '\n';
+
+  text += '3. Dinas luar / WFH (' + dinas.length + ' orang)\n';
+  if (dinas.length) text += fmt(dinas) + '\n';
+
+  // Tidak ada di data sistem — diisi manual oleh HR
+  text += '4. Libur ganti hari Minggu (0 orang)\n';
+  text += '[isi manual jika ada]\n';
+
+  text += '5. Ijin Per jam (' + ijin.length + ' orang)\n';
+  if (ijin.length) text += fmt(ijin);
+
+  return text.trim();
+}
+
+function openLaporanWA() {
+  const text = buildLaporanText();
+  document.getElementById('laporanText').value = text;
+  document.getElementById('copyToast').textContent = '';
+  goPage('report');
+}
+
+function backToHomeFromReport() { goPage('home'); }
+
+function salinLaporan() {
+  const ta = document.getElementById('laporanText');
+  ta.focus();
+  ta.select();
+  ta.setSelectionRange(0, 99999);
+  const toast = document.getElementById('copyToast');
+  navigator.clipboard.writeText(ta.value).then(() => {
+    toast.textContent = '✓ Teks tersalin';
+  }).catch(() => {
+    try {
+      document.execCommand('copy');
+      toast.textContent = '✓ Teks tersalin';
+    } catch (e) {
+      toast.textContent = 'Gagal menyalin, silakan copy manual';
+    }
+  });
+}
+
+function kirimKeWA() {
+  const text = document.getElementById('laporanText').value;
+  const url = 'https://wa.me/?text=' + encodeURIComponent(text);
+  window.open(url, '_blank');
 }
 </script>
 </body>
