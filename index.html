@@ -1303,6 +1303,8 @@ function computeDailyScore(dayRows) {
 // Rata-ratakan skor harian ke semua hari kerja (Senin-Sabtu) sejak Juli 2026 sampai hari ini
 // Akumulasikan (jumlahkan, BUKAN rata-rata) poin harian, tapi CUMA untuk bulan berjalan.
 // Reset otomatis tiap tanggal 1, biar adil buat karyawan yang baru gabung.
+// Minggu bukan hari wajib: kalau ada absen di hari Minggu poinnya IKUT NAMBAH (bonus),
+// kalau kosong ya cuma nambah 0 (gak ngurangin total).
 function hitungTotalPoin(allData) {
   const now = new Date();
   const y = now.getFullYear(), m = now.getMonth() + 1, todayDate = now.getDate();
@@ -1317,11 +1319,8 @@ function hitungTotalPoin(allData) {
 
   let totalScore = 0;
   for (let d = 1; d <= todayDate; d++) {
-    const dow = new Date(y, m - 1, d).getDay();
-    if (dow === 0) continue; // Minggu diskip
-
     const dayRows = byDate.get(d) || [];
-    totalScore += computeDailyScore(dayRows);
+    totalScore += computeDailyScore(dayRows); // hari kosong (termasuk Minggu tanpa absen) otomatis nambah 0
   }
 
   return totalScore;
