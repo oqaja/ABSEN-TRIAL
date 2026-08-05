@@ -669,6 +669,7 @@ let latitude = '', longitude = '', photoBase64 = '';
 let stream = null, html5QrCode = null;
 let absensiCache = null;
 let chartInstance = null;
+let sudahAbsenHariIni = false; // NEW: status absen hari ini, dipakai buat auto-hide card countdown
 
 function hashString(str) {
   let h = 0;
@@ -750,13 +751,17 @@ function fmtJam(jam, menit) {
 }
 
 // Countdown ke batas absen 08:05, Senin-Sabtu. Minggu disembunyikan.
+// Auto-hide juga kalau: user sudah absen apapun hari ini, ATAU sekarang sudah >= 10:00.
 function updateCountdownCard() {
   const card = document.getElementById('countdownAbsenCard');
   if (!card) return;
   const now = new Date();
   const day = now.getDay(); // 0 = Minggu
 
-  if (day === 0) {
+  const batasFitur = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 0, 0); // NEW: batas fitur 10:00
+
+  // NEW: sembunyikan kalau hari Minggu, user udah absen hari ini, atau udah lewat jam 10:00
+  if (day === 0 || sudahAbsenHariIni || now >= batasFitur) {
     card.style.display = 'none';
     return;
   }
@@ -786,7 +791,12 @@ setInterval(updateCountdownCard, 1000);
 // Ringkasan absen pertama & terakhir hari ini
 async function renderTodayAbsen() {
   const wrap = document.getElementById('todaySummaryWrap');
-  if (!nama) { wrap.style.display = 'none'; return; }
+  if (!nama) {
+    wrap.style.display = 'none';
+    sudahAbsenHariIni = false; // NEW
+    updateCountdownCard(); // NEW
+    return;
+  }
   wrap.style.display = 'flex';
 
   const now = new Date();
@@ -799,6 +809,8 @@ async function renderTodayAbsen() {
   const masukEl = document.getElementById('todayMasukJam');
   const pulangEl = document.getElementById('todayPulangJam');
 
+  sudahAbsenHariIni = todayRows.length > 0; // NEW: set status sebelum refresh card
+
   if (todayRows.length) {
     const first = todayRows[0];
     const last = todayRows[todayRows.length - 1];
@@ -808,6 +820,8 @@ async function renderTodayAbsen() {
     masukEl.textContent = '--:--';
     pulangEl.textContent = '--:--';
   }
+
+  updateCountdownCard(); // NEW: refresh card countdown setelah tau status absen hari ini
 }
 
 async function renderHomeCalendar() {
