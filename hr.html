@@ -607,7 +607,9 @@ function buildLaporanText() {
       tidakMasuk.push(emp.nama);
     }
 
-    // 2. Datang terlambat: absen masuk > 08:05
+    // 2. Datang terlambat: HANYA dilihat dari jam record "Absen Masuk".
+    //    Jam pada record "Ijin dari Rumah"/"Ijin dari Kantor" TIDAK PERNAH dipakai
+    //    untuk cek terlambat, walaupun jamnya lebih dari 08:05.
     if (masukRow && isLambat(masukRow.jam, masukRow.menit)) {
       terlambat.push(emp.nama);
     }
@@ -615,8 +617,11 @@ function buildLaporanText() {
     // 3. Dinas luar / WFH
     if (hasDinas) dinas.push(emp.nama);
 
-    // 5. Ijin per jam
-    if (hasIjin) ijin.push(emp.nama);
+    // 5. Ijin per jam: HANYA untuk karyawan yang ijin (dari rumah/kantor) TANPA
+    //    ada "Absen Masuk" hari itu. Kalau dia sudah Absen Masuk lalu di jam
+    //    tertentu ambil "Ijin dari Kantor" (keluar sebentar), dia TIDAK dihitung
+    //    di kategori ini — dianggap tetap hadir normal.
+    if (hasIjin && !hasMasuk) ijin.push(emp.nama);
   });
 
   const fmt = (arr) => arr.map(n => '- ' + n).join('\n');
