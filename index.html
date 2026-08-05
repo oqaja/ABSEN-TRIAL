@@ -165,6 +165,38 @@
   .today-summary-label { font-size: 11px; color: var(--text-muted); font-weight: 600; }
   .today-summary-jam { font-size: 18px; font-weight: 800; margin-top: 2px; }
 
+  /* Leaderboard */
+  .lb-top3 { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 12px; }
+  .lb-top-card {
+    flex: 1; min-width: 0; background: var(--card); border-radius: var(--radius);
+    padding: 14px 6px 12px; text-align: center; border: 1px solid var(--border);
+  }
+  .lb-top-card.rank-1 { order: 2; padding-top: 20px; border-color: rgba(255,186,0,0.4); background: linear-gradient(160deg, rgba(255,186,0,0.12), var(--card)); }
+  .lb-top-card.rank-2 { order: 1; }
+  .lb-top-card.rank-3 { order: 3; }
+  .lb-top-card.lb-me { border-color: var(--mint); box-shadow: 0 0 0 1px var(--mint) inset; }
+  .lb-medal { font-size: 20px; margin-bottom: 4px; }
+  .lb-avatar {
+    width: 40px; height: 40px; border-radius: 50%; background: var(--card-2);
+    display: flex; align-items: center; justify-content: center; font-weight: 800;
+    color: var(--mint); margin: 0 auto 6px; font-size: 15px;
+  }
+  .lb-top-card.rank-1 .lb-avatar { width: 50px; height: 50px; font-size: 18px; }
+  .lb-top-name { font-size: 11px; font-weight: 700; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-top-persen { font-size: 15px; font-weight: 800; color: var(--mint); }
+
+  .lb-rest-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .lb-rest-item:last-child { border-bottom: none; }
+  .lb-rest-item.lb-me { background: var(--primary-light); border-radius: var(--radius-sm); padding-left: 8px; padding-right: 8px; margin: 0 -8px; }
+  .lb-rest-rank { width: 22px; text-align: center; font-size: 13px; font-weight: 800; color: var(--text-muted); flex-shrink: 0; }
+  .lb-rest-avatar {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--card-2);
+    display: flex; align-items: center; justify-content: center; font-weight: 800;
+    color: var(--text-muted); font-size: 12px; flex-shrink: 0;
+  }
+  .lb-rest-name { flex: 1; font-size: 14px; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-rest-persen { font-size: 14px; font-weight: 800; color: var(--mint); flex-shrink: 0; }
+
   /* ===== ABSEN ===== */
   #page-absen { padding: 16px; }
   #page-absen h2 { text-align: center; margin-bottom: 16px; font-size: 20px; }
@@ -210,20 +242,6 @@
   .profil-info { flex: 1; min-width: 0; }
   .profil-nama { font-size: 20px; font-weight: 800; margin-bottom: 2px; }
   .profil-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-  .profil-level-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  background: rgba(0,200,150,0.12); border: 1px solid rgba(0,200,150,0.25);
-  color: var(--mint); font-size: 11px; font-weight: 700;
-  padding: 3px 10px; border-radius: 20px; margin-bottom: 10px;
-  }
-  .profil-bar-wrap {
-  height: 6px; background: var(--card-2); border-radius: 99px; overflow: hidden; width: 100%;
-  }
-  .profil-bar-fill {
-  height: 100%; border-radius: 99px;
-  background: linear-gradient(90deg, var(--mint), #00e8b0);
-  transition: width 1s cubic-bezier(.34,1.56,.64,1); width: 0%;
-  }
 
   /* 4-col stat grid */
   .stat-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
@@ -289,47 +307,17 @@
   }
 
   .loading-text { text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px 0; }
-/* LEADERBOARD */
-.lb-podium { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 4px; }
-.lb-pod-card {
-  flex: 1; border-radius: var(--radius); padding: 14px 10px 12px;
-  text-align: center; border: 1px solid var(--border); position: relative;
-}
-.lb-pod-card.rank-1 { background: linear-gradient(145deg, #2a2400, #1a1600); border-color: rgba(255,186,0,0.4); }
-.lb-pod-card.rank-2 { background: linear-gradient(145deg, #1e1e26, #161620); border-color: rgba(180,180,200,0.3); }
-.lb-pod-card.rank-3 { background: linear-gradient(145deg, #1e1a18, #141210); border-color: rgba(180,100,60,0.3); }
-.lb-pod-rank { font-size: 22px; margin-bottom: 6px; line-height: 1; }
-.lb-pod-nama { font-size: 13px; font-weight: 800; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.lb-pod-score { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 20px; display: inline-block; }
-.rank-1 .lb-pod-score { background: rgba(255,186,0,0.18); color: var(--yellow); }
-.rank-2 .lb-pod-score { background: rgba(200,200,220,0.12); color: #c8c8dc; }
-.rank-3 .lb-pod-score { background: rgba(180,100,60,0.18); color: #e08050; }
-.lb-pod-sub { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
-
-.lb-row {
-  display: flex; align-items: center; gap: 12px;
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 8px;
-}
-.lb-row-rank { font-size: 14px; font-weight: 800; color: var(--text-muted); width: 24px; text-align: center; flex-shrink: 0; }
-.lb-row-nama { flex: 1; font-size: 14px; font-weight: 700; }
-.lb-row-score { font-size: 13px; font-weight: 800; color: var(--mint); }
-.lb-row-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-.lb-me { border-color: rgba(0,200,150,0.4); background: rgba(0,200,150,0.06); }
 </style>
 </head>
 <body>
 
 <!-- BOTTOM NAV -->
-<nav class="bottom-nav" style="max-width:360px;">
+<nav class="bottom-nav">
   <div class="nav-item active" id="nav-home" onclick="goPage('home')">
     <span class="nav-icon">🏠</span>
   </div>
   <div class="nav-item" id="nav-absen" onclick="goPage('absen')">
     <span class="nav-icon">📋</span>
-  </div>
-  <div class="nav-item" id="nav-leaderboard" onclick="goPage('leaderboard')">
-    <span class="nav-icon">🏆</span>
   </div>
   <div class="nav-item" id="nav-profil" onclick="goPage('profil')">
     <span class="nav-icon">👤</span>
@@ -385,6 +373,13 @@
     </div>
     <div id="homeLoadingBox" class="loading-text" style="display:none">Memuat data...</div>
 
+    <div class="section-label" style="margin-top:18px">Leaderboard Kehadiran</div>
+    <div id="lbHint" style="display:none; font-size:11px; color:var(--danger); margin:0 0 12px; font-weight:600;"></div>
+    <div class="lb-top3" id="lbTop3"></div>
+    <div class="card" id="lbRestCard" style="margin-bottom:14px">
+      <div id="lbRestList"></div>
+    </div>
+
     <div class="section-label" style="margin-top:18px">Coming Soon</div>
     <div class="coming-soon-card">
       <div class="cs-emoji">🚀</div>
@@ -404,7 +399,7 @@
         <select id="namaSelect">
           <option value="">-- Pilih Nama --</option>
           <option>Karyo</option><option>Dimas</option><option>Oky</option>
-          <option>Vero</option><option>April</option><option>Yuli</option>
+          <option>April</option><option>Yuli</option>
           <option>Rayhan</option><option>Bimar</option><option>Budi</option>
         </select>
         <input type="password" id="pinSetup1" placeholder="Buat PIN (4 digit)" inputmode="numeric" maxlength="4">
@@ -500,14 +495,6 @@
   <div class="profil-info">
     <div class="profil-nama" id="profilNama">—</div>
     <div class="profil-sub">Karyawan Aktif</div>
-    <div class="profil-level-badge">⭐ Level <span id="profilLevel">0</span></div>
-    <div style="display:flex; align-items:center; gap:8px;">
-  <div class="profil-bar-wrap" style="flex:1">
-    <div class="profil-bar-fill" id="profilBarFill"></div>
-  </div>
-  <span id="profilBarPersen" style="font-size:11px; font-weight:700; color:var(--mint); min-width:32px; text-align:right;">0%</span>
-</div>
-    <div id="profilLevelHint" style="display:none; font-size:10px; color:var(--danger); margin-top:6px; font-weight:600;"></div>
   </div>
 </div>
 
@@ -597,7 +584,6 @@ let latitude = '', longitude = '', photoBase64 = '';
 let stream = null, html5QrCode = null;
 let absensiCache = null;
 let chartInstance = null;
-let sudahAbsenMasukHariIni = false;
 
 function hashString(str) {
   let h = 0;
@@ -624,7 +610,6 @@ function goPage(page) {
   if (page === 'home') renderHome();
   if (page === 'profil') renderProfil();
   if (page === 'absen') initAbsenPage();
-  if (page === 'leaderboard') renderLeaderboard();
   window.scrollTo(0, 0);
 }
 
@@ -651,6 +636,7 @@ async function renderHome() {
   renderDateScroll();
   await renderHomeCalendar();
   await renderTodayAbsen();
+  await renderLeaderboard();
 }
 
 function renderDateScroll() {
@@ -681,19 +667,7 @@ function updateCountdownCard() {
   const now = new Date();
   const day = now.getDay(); // 0 = Minggu
 
-  if (day === 0) 
-  function updateCountdownCard() {
-  const card = document.getElementById('countdownAbsenCard');
-  if (!card) return;
-  const now = new Date();
-  const day = now.getDay();
-
-  // TAMBAHAN: sembunyikan kalau hari Minggu ATAU sudah absen hari ini
-  if (day === 0 || sudahAbsenMasukHariIni) {
-    card.style.display = 'none';
-    return;
-  }
-  // ... sisa kode tetap sama {
+  if (day === 0) {
     card.style.display = 'none';
     return;
   }
@@ -735,33 +709,15 @@ async function renderTodayAbsen() {
 
   const masukEl = document.getElementById('todayMasukJam');
   const pulangEl = document.getElementById('todayPulangJam');
-  const masukCard = masukEl.closest('.today-summary-card');
-
-  // Reset warna card masuk
-  masukCard.style.background = '';
-  masukCard.style.borderColor = '';
-  masukEl.style.color = '';
 
   if (todayRows.length) {
     const first = todayRows[0];
     const last = todayRows[todayRows.length - 1];
-
     masukEl.textContent = fmtJam(first.jam, first.menit);
     pulangEl.textContent = todayRows.length > 1 ? fmtJam(last.jam, last.menit) : '--:--';
-
-    // Cek apakah sudah absen hari ini → sembunyikan countdown
-    sudahAbsenMasukHariIni = true;
-
-    // Warna merah kalau Absen Masuk terlambat
-    if (first.jenisAbsen === 'Absen Masuk' && isLambat(first.jam, first.menit)) {
-      masukCard.style.background = 'rgba(255,92,92,0.08)';
-      masukCard.style.borderColor = 'rgba(255,92,92,0.35)';
-      masukEl.style.color = 'var(--danger)';
-    }
   } else {
     masukEl.textContent = '--:--';
     pulangEl.textContent = '--:--';
-    sudahAbsenMasukHariIni = false;
   }
 }
 
@@ -1019,20 +975,6 @@ async function renderProfil() {
   const absensi = await fetchAbsensi(savedNama, now.getMonth() + 1, now.getFullYear());
   document.getElementById('profilLoadingBox').style.display = 'none';
 
-  // Hitung level & bar dari histori semua bulan
-  const allResult = await fetchAllAbsensi(savedNama);
-  const { level, persen } = hitungLevelDanBar(allResult.data);
-  document.getElementById('profilLevel').textContent = level;
-  document.getElementById('profilBarFill').style.width = persen + '%';
-  document.getElementById('profilBarPersen').textContent = persen + '%';
-  const hintEl = document.getElementById('profilLevelHint');
-  if (!allResult.ok) {
-    hintEl.textContent = '⚠️ Level belum bisa dimuat — cek endpoint getAllAbsensi di Apps Script (lihat console)';
-    hintEl.style.display = 'block';
-  } else {
-    hintEl.style.display = 'none';
-  }
-
   // Hitung rekap
   const hadirDates = new Set(), sakitDates = new Set(), ijinDates = new Set(), lambatDates = new Set();
 
@@ -1237,10 +1179,159 @@ function showLoadingError(msg) {
   });
 }
 
-async function fetchAllAbsensi(nama) {
-  if (!nama || nama === '—') return { ok: false, data: [] };
+// ===== SISTEM POIN KEHADIRAN (dipakai buat Leaderboard) =====
+
+// Absen Masuk / check-in Dinas Lapangan: makin pagi makin gede bonusnya
+// <08:00 -> 100 + 1 poin/menit lebih awal (tanpa batas atas)
+// 08:00-08:05 -> turun linear 100 -> 95
+// 08:05-09:00 -> turun linear 95 -> 0
+// >=09:00 -> 0
+function scoreAbsenMasuk(jam, menit) {
+  const t = jam * 60 + menit;
+  const startWork = 8 * 60;       // 08:00
+  const lateSoft = 8 * 60 + 5;    // 08:05
+  const lateHard = 9 * 60;        // 09:00
+
+  if (t < startWork) {
+    const earlyMinutes = startWork - t;
+    return 100 + earlyMinutes; // +1 poin per menit lebih awal
+  }
+  if (t <= lateSoft) {
+    const ratio = (t - startWork) / (lateSoft - startWork);
+    return Math.round(100 - ratio * 5); // 100 -> 95
+  }
+  if (t <= lateHard) {
+    const ratio = (t - lateSoft) / (lateHard - lateSoft);
+    return Math.round(95 - ratio * 95); // 95 -> 0
+  }
+  return 0;
+}
+
+// Ijin dari Rumah: dilihat dari jam Absen Masuk susulan hari itu
+// <=08:05 -> 100, 08:05-12:00 -> 100->50, 12:00-17:00 -> 50->0, >=17:00 -> 0
+function scoreIjinRumahMasuk(jam, menit) {
+  const t = jam * 60 + menit;
+  const deadline = 8 * 60 + 5; // 08:05
+  const noon = 12 * 60;        // 12:00
+  const endWork = 17 * 60;     // 17:00
+
+  if (t <= deadline) return 100;
+  if (t <= noon) {
+    const ratio = (t - deadline) / (noon - deadline);
+    return Math.round(100 - ratio * 50); // 100 -> 50
+  }
+  if (t <= endWork) {
+    const ratio = (t - noon) / (endWork - noon);
+    return Math.round(50 - ratio * 50); // 50 -> 0
+  }
+  return 0;
+}
+
+// Ijin dari Kantor: makin pagi absen ijinnya makin gede potongannya
+// <=08:00 -> 0, 08:00-12:00 -> 0->50, 12:00-13:00 -> flat 50, 13:00-17:00 -> 50->100, >=17:00 -> 100
+function scoreIjinKantor(jam, menit) {
+  const t = jam * 60 + menit;
+  const startWork = 8 * 60;   // 08:00
+  const noon = 12 * 60;       // 12:00
+  const onePM = 13 * 60;      // 13:00
+  const endWork = 17 * 60;    // 17:00
+
+  if (t <= startWork) return 0;
+  if (t >= endWork) return 100;
+  if (t >= noon && t <= onePM) return 50;
+  if (t < noon) {
+    const ratio = (t - startWork) / (noon - startWork);
+    return Math.round(ratio * 50);
+  }
+  const ratio = (t - onePM) / (endWork - onePM);
+  return Math.round(50 + ratio * 50);
+}
+
+// Durasi kerja Dinas Lapangan (Pulang dari Luar - Dinas Lapangan dari Rumah), target 9 jam.
+// Boleh lebih dari 100 kalau lembur beneran jauh.
+function scoreDurasiKerja(jamMulai, menitMulai, jamAkhir, menitAkhir) {
+  const mulai = jamMulai * 60 + menitMulai;
+  const akhir = jamAkhir * 60 + menitAkhir;
+  const durasiMenit = Math.max(0, akhir - mulai);
+  const target = 9 * 60; // 9 jam kerja penuh
+  return Math.round((durasiMenit / target) * 100);
+}
+
+// Hitung skor satu hari berdasarkan kumpulan baris absen di hari itu
+function computeDailyScore(dayRows) {
+  const has = j => dayRows.some(r => r.jenisAbsen === j);
+  const get = j => dayRows.find(r => r.jenisAbsen === j);
+
+  if (has('Sakit')) return 50;
+
+  if (has('Dinas Lapangan dari Rumah')) {
+    const mulai = get('Dinas Lapangan dari Rumah');
+    const checkinScore = scoreAbsenMasuk(mulai.jam, mulai.menit);
+    const akhir = get('Pulang dari Luar');
+    if (!akhir) return checkinScore; // belum ada Pulang dari Luar, pakai skor check-in aja
+    const checkoutScore = scoreDurasiKerja(mulai.jam, mulai.menit, akhir.jam, akhir.menit);
+    return Math.round((checkinScore + checkoutScore) / 2);
+  }
+
+  if (has('Ijin dari Rumah')) {
+    const masuk = get('Absen Masuk');
+    if (!masuk) return 0; // ijin seharian, gak ada absen masuk susulan
+    return scoreIjinRumahMasuk(masuk.jam, masuk.menit);
+  }
+
+  if (has('Ijin dari Kantor')) {
+    const ijin = get('Ijin dari Kantor');
+    return scoreIjinKantor(ijin.jam, ijin.menit);
+  }
+
+  if (has('Absen Masuk')) {
+    const masuk = get('Absen Masuk');
+    return scoreAbsenMasuk(masuk.jam, masuk.menit);
+  }
+
+  return 0; // gak ada absen sama sekali hari itu (alpha)
+}
+
+// Rata-ratakan skor harian ke semua hari kerja (Senin-Sabtu) sejak Juli 2026 sampai hari ini
+function hitungPersenPoin(allData) {
+  const START_YEAR = 2026, START_MONTH = 7;
+
+  const byDate = new Map();
+  allData.forEach(row => {
+    const key = row.tahun + '-' + row.bulan + '-' + row.tanggal;
+    if (!byDate.has(key)) byDate.set(key, []);
+    byDate.get(key).push(row);
+  });
+
+  const now = new Date();
+  let totalScore = 0, totalWorkingDays = 0;
+  let y = START_YEAR, m = START_MONTH;
+
+  while (y < now.getFullYear() || (y === now.getFullYear() && m <= now.getMonth() + 1)) {
+    const isBulanIni = (y === now.getFullYear() && m === now.getMonth() + 1);
+    const lastDayInMonth = new Date(y, m, 0).getDate();
+    const lastDayToCheck = isBulanIni ? now.getDate() : lastDayInMonth;
+
+    for (let d = 1; d <= lastDayToCheck; d++) {
+      const dow = new Date(y, m - 1, d).getDay();
+      if (dow === 0) continue; // Minggu diskip
+
+      totalWorkingDays++;
+      const key = y + '-' + m + '-' + d;
+      const dayRows = byDate.get(key) || [];
+      totalScore += computeDailyScore(dayRows);
+    }
+
+    m++; if (m > 12) { m = 1; y++; }
+  }
+
+  return totalWorkingDays > 0 ? Math.round(totalScore / totalWorkingDays) : 0;
+}
+
+// ===== LEADERBOARD =====
+async function fetchLeaderboard() {
   try {
-    const url = SCRIPT_URL + '?action=getAllAbsensi&nama=' + encodeURIComponent(nama);
+    const url = SCRIPT_URL + '?action=getLeaderboard';
     const res = await fetch(url, { redirect: 'follow' });
     const rawText = await res.text();
 
@@ -1248,221 +1339,68 @@ async function fetchAllAbsensi(nama) {
     try {
       data = JSON.parse(rawText);
     } catch (parseErr) {
-      console.error('[fetchAllAbsensi] Response BUKAN JSON — kemungkinan besar Apps Script belum di-deploy ulang dengan action "getAllAbsensi". Raw response:', rawText.substring(0, 200));
+      console.error('[fetchLeaderboard] Response BUKAN JSON — kemungkinan Apps Script belum di-deploy ulang dengan action "getLeaderboard". Raw response:', rawText.substring(0, 200));
       return { ok: false, data: [] };
     }
 
     if (data.result === 'success') return { ok: true, data: data.data };
-    console.error('[fetchAllAbsensi] Error dari Apps Script:', data.message);
+    console.error('[fetchLeaderboard] Error dari Apps Script:', data.message);
     return { ok: false, data: [] };
-  } catch(e) {
-    console.error('fetchAllAbsensi error:', e);
+  } catch (e) {
+    console.error('fetchLeaderboard error:', e);
     return { ok: false, data: [] };
   }
 }
-
-function countWorkingDaysInMonth(year, month) {
-  // month 1-indexed, hitung Senin-Sabtu
-  const lastDay = new Date(year, month, 0).getDate();
-  let count = 0;
-  for (let d = 1; d <= lastDay; d++) {
-    if (new Date(year, month - 1, d).getDay() !== 0) count++;
-  }
-  return count;
-}
-
-function hitungLevelDanBar(allData) {
-  // Penilaian Level & progress bar dimulai dari sini, bukan dari absen paling awal
-  const START_YEAR = 2026, START_MONTH = 7; // Juli 2026
-
-  // Kelompokkan per bulan
-  const byMonth = new Map();
-  allData.forEach(row => {
-    const key = row.tahun + '-' + String(row.bulan).padStart(2,'0');
-    if (!byMonth.has(key)) byMonth.set(key, { tahun: row.tahun, bulan: row.bulan, rows: [] });
-    byMonth.get(key).rows.push(row);
-  });
-
-  const now = new Date();
-  let totalWorkingDays = 0, totalHadirDays = 0, level = 0;
-  let y = START_YEAR, m = START_MONTH;
-
-  while (y < now.getFullYear() || (y === now.getFullYear() && m <= now.getMonth() + 1)) {
-    const key = y + '-' + String(m).padStart(2,'0');
-    const workingDays = countWorkingDaysInMonth(y, m);
-    totalWorkingDays += workingDays;
-
-    const monthData = byMonth.get(key);
-    if (monthData) {
-      const hadirDates = new Set(), sakitDates = new Set();
-      const ijinDates = new Set(), lambatDates = new Set();
-
-      monthData.rows.forEach(row => {
-        if (row.jenisAbsen === 'Absen Masuk' || row.jenisAbsen === 'Dinas Lapangan dari Rumah') {
-          hadirDates.add(row.tanggal);
-          if (row.jenisAbsen === 'Absen Masuk' && isLambat(row.jam, row.menit)) lambatDates.add(row.tanggal);
-        } else if (row.jenisAbsen === 'Sakit') sakitDates.add(row.tanggal);
-        else if (row.jenisAbsen === 'Ijin dari Rumah' || row.jenisAbsen === 'Ijin dari Kantor') ijinDates.add(row.tanggal);
-      });
-
-      totalHadirDays += hadirDates.size;
-
-      // Cek level hanya untuk bulan yang sudah selesai
-      const isBulanIni = (y === now.getFullYear() && m === now.getMonth() + 1);
-      if (!isBulanIni) {
-        if (hadirDates.size === workingDays &&
-            sakitDates.size === 0 && ijinDates.size === 0 && lambatDates.size === 0) {
-          level++;
-        }
-      }
-    }
-
-    m++; if (m > 12) { m = 1; y++; }
-  }
-
-  const persen = totalWorkingDays > 0 ? Math.round((totalHadirDays / totalWorkingDays) * 100) : 0;
-  return { level, persen };
-}
-
-// ===== LEADERBOARD =====
-const HR_KEY = 'hr123'; // harus sama dengan di Apps Script
 
 async function renderLeaderboard() {
-  const now = new Date();
-  const bulanNames = ['Januari','Februari','Maret','April','Mei','Juni',
-    'Juli','Agustus','September','Oktober','November','Desember'];
-  document.getElementById('lbBulanLabel').textContent =
-    'Penilaian bulan ' + bulanNames[now.getMonth()] + ' ' + now.getFullYear();
-  document.getElementById('lbLoadingBox').style.display = 'block';
-  document.getElementById('lbErrorBox').style.display = 'none';
-  document.getElementById('lbTop3').innerHTML = '';
-  document.getElementById('lbRest').innerHTML = '';
+  const top3Wrap = document.getElementById('lbTop3');
+  const restList = document.getElementById('lbRestList');
+  const hintEl = document.getElementById('lbHint');
+  if (!top3Wrap) return;
 
-  try {
-    const url = SCRIPT_URL + '?action=getRekapHR&key=' + HR_KEY
-      + '&month=' + (now.getMonth() + 1) + '&year=' + now.getFullYear();
-    const res = await fetch(url, { redirect: 'follow' });
-    const rawText = await res.text();
-    if (rawText.trim().startsWith('<')) throw new Error('Response HTML, bukan JSON');
-    const data = JSON.parse(rawText);
-    if (data.result !== 'success') throw new Error(data.message || 'Error dari server');
-
-    // Hitung skor tiap karyawan
-    const ranked = data.data
-      .map(emp => ({ nama: emp.nama, ...hitungSkorKaryawan(emp.absensi, now) }))
-      .sort((a, b) => b.skor - a.skor || a.avgMasukMenit - b.avgMasukMenit);
-
-    renderLbTop3(ranked.slice(0, 3));
-    renderLbRest(ranked.slice(3));
-  } catch(e) {
-    console.error('Leaderboard error:', e);
-    document.getElementById('lbErrorBox').textContent = '⚠️ Gagal memuat: ' + e.message;
-    document.getElementById('lbErrorBox').style.display = 'block';
+  const result = await fetchLeaderboard();
+  if (!result.ok) {
+    top3Wrap.innerHTML = '';
+    restList.innerHTML = '';
+    hintEl.textContent = '⚠️ Leaderboard belum bisa dimuat — cek endpoint getLeaderboard di Apps Script (lihat console)';
+    hintEl.style.display = 'block';
+    return;
   }
-  document.getElementById('lbLoadingBox').style.display = 'none';
-}
+  hintEl.style.display = 'none';
 
-function hitungSkorKaryawan(absensi, now) {
-  const hadirDates = new Set(), sakitDates = new Set();
-  const ijinDates = new Set(), lambatDates = new Set();
-  let totalMasukMenit = 0, jumlahMasuk = 0;
+  const ranked = result.data
+    .map(emp => ({ nama: emp.nama, persen: hitungPersenPoin(emp.absensi) }))
+    .sort((a, b) => b.persen - a.persen || a.nama.localeCompare(b.nama));
 
-  // Hitung hari kerja yang sudah lewat bulan ini (Senin-Sabtu, s/d hari ini)
-  const today = now.getDate(), month = now.getMonth(), year = now.getFullYear();
-  let workingDaysSoFar = 0;
-  for (let d = 1; d <= today; d++) {
-    if (new Date(year, month, d).getDay() !== 0) workingDaysSoFar++;
-  }
+  const top3 = ranked.slice(0, 3);
+  const rest = ranked.slice(3);
+  const medals = ['🥇', '🥈', '🥉'];
 
-  absensi.forEach(row => {
-    const tgl = row.tanggal;
-    // Hanya hitung sampai hari ini
-    if (tgl > today) return;
-
-    const jenis = row.jenisAbsen, jam = row.jam, menit = row.menit;
-    if (jenis === 'Absen Masuk' || jenis === 'Dinas Lapangan dari Rumah') {
-      hadirDates.add(tgl);
-      if (jenis === 'Absen Masuk') {
-        const menitTotal = jam * 60 + menit;
-        totalMasukMenit += menitTotal;
-        jumlahMasuk++;
-        if (isLambat(jam, menit)) lambatDates.add(tgl);
-      }
-    } else if (jenis === 'Sakit') sakitDates.add(tgl);
-    else if (jenis === 'Ijin dari Rumah' || jenis === 'Ijin dari Kantor') ijinDates.add(tgl);
-  });
-
-  const avgMasukMenit = jumlahMasuk > 0 ? Math.round(totalMasukMenit / jumlahMasuk) : 999;
-  const batasAbsen = 8 * 60 + 5; // 485 menit = 08:05
-
-  // Skor:
-  // Hadir per hari kerja = bobot terbesar
-  const hadirSkor = hadirDates.size * 100;
-  // Penalti ketidakhadiran
-  const penalti = sakitDates.size * 30 + ijinDates.size * 30 + lambatDates.size * 15;
-  // Bonus datang lebih awal (maks ~60 menit sebelum 08:05 = 6 poin per hari)
-  const earlyBonus = jumlahMasuk > 0
-    ? Math.round(Math.max(0, (batasAbsen - avgMasukMenit)) * jumlahMasuk / 10)
-    : 0;
-
-  const skor = hadirSkor - penalti + earlyBonus;
-
-  // Format rata-rata jam masuk untuk display
-  const avgJam = Math.floor(avgMasukMenit / 60);
-  const avgMen = avgMasukMenit % 60;
-  const avgMasukStr = jumlahMasuk > 0
-    ? String(avgJam).padStart(2,'0') + ':' + String(avgMen).padStart(2,'0')
-    : '--:--';
-
-  return {
-    skor, hadirDays: hadirDates.size, sakitDays: sakitDates.size,
-    ijinDays: ijinDates.size, lambatDays: lambatDates.size,
-    avgMasukMenit, avgMasukStr, workingDaysSoFar
-  };
-}
-
-function renderLbTop3(top) {
-  const medals = ['🥇','🥈','🥉'];
-  const rankClass = ['rank-1','rank-2','rank-3'];
-  const namaUser = localStorage.getItem('absensi_nama') || '';
-
-  // Susun: rank-2 kiri, rank-1 tengah (lebih tinggi), rank-3 kanan
-  const order = top.length >= 3 ? [top[1], top[0], top[2]] : top;
-  const orderClass = top.length >= 3 ? [rankClass[1], rankClass[0], rankClass[2]] : rankClass;
-  const orderMedal = top.length >= 3 ? [medals[1], medals[0], medals[2]] : medals;
-
-  const html = '<div class="lb-podium">' + order.map((emp, i) => {
-    const isMe = emp.nama === namaUser;
-    const heightStyle = (top.length >= 3 && i === 1) ? 'padding-top:22px;' : '';
-    return '<div class="lb-pod-card ' + orderClass[i] + (isMe ? ' lb-me' : '') + '" style="' + heightStyle + '">' +
-      '<div class="lb-pod-rank">' + orderMedal[i] + '</div>' +
-      '<div class="lb-pod-nama">' + escapeHtml(emp.nama) + (isMe ? ' 👤' : '') + '</div>' +
-      '<div class="lb-pod-score">' + emp.skor + ' pts</div>' +
-      '<div class="lb-pod-sub">Hadir ' + emp.hadirDays + ' · ⏰ ' + emp.avgMasukStr + '</div>' +
-    '</div>';
-  }).join('') + '</div>';
-
-  document.getElementById('lbTop3').innerHTML = html;
-}
-
-function renderLbRest(rest) {
-  if (!rest.length) return;
-  const namaUser = localStorage.getItem('absensi_nama') || '';
-  const html = rest.map((emp, i) => {
-    const isMe = emp.nama === namaUser;
-    return '<div class="lb-row' + (isMe ? ' lb-me' : '') + '">' +
-      '<div class="lb-row-rank">' + (i + 4) + '</div>' +
-      '<div style="flex:1; min-width:0;">' +
-        '<div class="lb-row-nama">' + escapeHtml(emp.nama) + (isMe ? ' 👤' : '') + '</div>' +
-        '<div class="lb-row-sub">Hadir ' + emp.hadirDays + ' · ⏰ ' + emp.avgMasukStr +
-          (emp.lambatDays > 0 ? ' · Terlambat ' + emp.lambatDays + 'x' : '') + '</div>' +
-      '</div>' +
-      '<div class="lb-row-score">' + emp.skor + '</div>' +
-    '</div>';
+  top3Wrap.innerHTML = top3.map((emp, i) => {
+    const rank = i + 1;
+    const initial = emp.nama.charAt(0).toUpperCase();
+    const isMe = emp.nama === nama;
+    return `<div class="lb-top-card rank-${rank}${isMe ? ' lb-me' : ''}">
+      <div class="lb-medal">${medals[i]}</div>
+      <div class="lb-avatar">${initial}</div>
+      <div class="lb-top-name">${escapeHtml(emp.nama)}</div>
+      <div class="lb-top-persen">${emp.persen}%</div>
+    </div>`;
   }).join('');
-  document.getElementById('lbRest').innerHTML = html;
+
+  restList.innerHTML = rest.length ? rest.map((emp, idx) => {
+    const rank = idx + 4;
+    const initial = emp.nama.charAt(0).toUpperCase();
+    const isMe = emp.nama === nama;
+    return `<div class="lb-rest-item${isMe ? ' lb-me' : ''}">
+      <div class="lb-rest-rank">${rank}</div>
+      <div class="lb-rest-avatar">${initial}</div>
+      <div class="lb-rest-name">${escapeHtml(emp.nama)}</div>
+      <div class="lb-rest-persen">${emp.persen}%</div>
+    </div>`;
+  }).join('') : '';
 }
-  
+
 function gantiProfilFoto(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -1474,23 +1412,5 @@ function gantiProfilFoto(event) {
   reader.readAsDataURL(file);
 }
 </script>
-  <!-- ===== LEADERBOARD ===== -->
-<div class="page" id="page-leaderboard">
-  <div style="padding:16px">
-    <div style="text-align:center; padding:8px 0 16px;">
-      <div style="font-size:24px; font-weight:800;">🏆 Leaderboard</div>
-      <div style="font-size:12px; color:var(--text-muted); margin-top:4px;" id="lbBulanLabel">—</div>
-    </div>
-
-    <!-- Top 3 podium -->
-    <div id="lbTop3" style="margin-bottom:16px;"></div>
-
-    <!-- Sisanya -->
-    <div id="lbRest"></div>
-
-    <div id="lbLoadingBox" class="loading-text" style="display:none">Memuat leaderboard...</div>
-    <div id="lbErrorBox" style="display:none; text-align:center; color:var(--danger); font-size:13px; padding:16px 0;"></div>
-  </div>
-</div>
 </body>
 </html>
