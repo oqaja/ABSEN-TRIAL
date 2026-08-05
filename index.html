@@ -49,7 +49,7 @@
     left: 50%;
     transform: translateX(-50%);
     width: calc(100% - 48px);
-    max-width: 300px;
+    max-width: 340px;
     height: 64px;
     background: #111827;
     border-radius: 999px;
@@ -58,11 +58,11 @@
     justify-content: space-around;
     z-index: 100;
     box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3);
-    padding: 0 10px;
+    padding: 0 8px;
   }
   .nav-item {
     display: flex; align-items: center; justify-content: center;
-    width: 52px; height: 52px;
+    width: 48px; height: 48px;
     cursor: pointer; border-radius: 50%;
     transition: all 0.2s cubic-bezier(.34,1.56,.64,1);
     flex-shrink: 0;
@@ -319,6 +319,9 @@
   <div class="nav-item" id="nav-absen" onclick="goPage('absen')">
     <span class="nav-icon">📋</span>
   </div>
+  <div class="nav-item" id="nav-leaderboard" onclick="goPage('leaderboard')">
+    <span class="nav-icon">🏆</span>
+  </div>
   <div class="nav-item" id="nav-profil" onclick="goPage('profil')">
     <span class="nav-icon">👤</span>
   </div>
@@ -372,13 +375,6 @@
       <div class="cal-grid" id="calGrid" style="margin-top:6px"></div>
     </div>
     <div id="homeLoadingBox" class="loading-text" style="display:none">Memuat data...</div>
-
-    <div class="section-label" style="margin-top:18px">Leaderboard Kehadiran</div>
-    <div id="lbHint" style="display:none; font-size:11px; color:var(--danger); margin:0 0 12px; font-weight:600;"></div>
-    <div class="lb-top3" id="lbTop3"></div>
-    <div class="card" id="lbRestCard" style="margin-bottom:14px">
-      <div id="lbRestList"></div>
-    </div>
 
     <div class="section-label" style="margin-top:18px">Coming Soon</div>
     <div class="coming-soon-card">
@@ -478,6 +474,18 @@
         <div class="status-box status-ok" id="finalStatus">Absensi berhasil!</div>
         <button class="btn btn-outline" style="margin-top:16px" onclick="resetAbsen()">Absen Lagi</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LEADERBOARD ===== -->
+<div class="page" id="page-leaderboard">
+  <div style="padding:16px">
+    <h2>🏆 Leaderboard Kehadiran</h2>
+    <div id="lbHint" style="display:none; font-size:11px; color:var(--danger); margin:0 0 12px; font-weight:600; text-align:center;"></div>
+    <div class="lb-top3" id="lbTop3"></div>
+    <div class="card" id="lbRestCard" style="margin-bottom:14px">
+      <div id="lbRestList"></div>
     </div>
   </div>
 </div>
@@ -608,8 +616,9 @@ function goPage(page) {
   document.getElementById('page-' + page).classList.add('active');
   document.getElementById('nav-' + page).classList.add('active');
   if (page === 'home') renderHome();
-  if (page === 'profil') renderProfil();
   if (page === 'absen') initAbsenPage();
+  if (page === 'leaderboard') renderLeaderboard();
+  if (page === 'profil') renderProfil();
   window.scrollTo(0, 0);
 }
 
@@ -636,7 +645,6 @@ async function renderHome() {
   renderDateScroll();
   await renderHomeCalendar();
   await renderTodayAbsen();
-  await renderLeaderboard();
 }
 
 function renderDateScroll() {
@@ -1384,7 +1392,7 @@ async function renderLeaderboard() {
       <div class="lb-medal">${medals[i]}</div>
       <div class="lb-avatar">${initial}</div>
       <div class="lb-top-name">${escapeHtml(emp.nama)}</div>
-      <div class="lb-top-persen">${emp.persen}%</div>
+      <div class="lb-top-persen">${emp.persen}</div>
     </div>`;
   }).join('');
 
@@ -1396,7 +1404,7 @@ async function renderLeaderboard() {
       <div class="lb-rest-rank">${rank}</div>
       <div class="lb-rest-avatar">${initial}</div>
       <div class="lb-rest-name">${escapeHtml(emp.nama)}</div>
-      <div class="lb-rest-persen">${emp.persen}%</div>
+      <div class="lb-rest-persen">${emp.persen}</div>
     </div>`;
   }).join('') : '';
 }
