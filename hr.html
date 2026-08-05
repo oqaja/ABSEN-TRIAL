@@ -361,17 +361,22 @@ function statusHariIni(absensiHariIni) {
   const hasMasuk = absensiHariIni.some(r => r.jenisAbsen === 'Absen Masuk');
   const hasDinas = absensiHariIni.some(r => r.jenisAbsen === 'Dinas Lapangan dari Rumah');
   const hasSakit = absensiHariIni.some(r => r.jenisAbsen === 'Sakit');
-  const hasIjin = absensiHariIni.some(r => r.jenisAbsen === 'Ijin dari Rumah' || r.jenisAbsen === 'Ijin dari Kantor');
+  const hasIjinRumah = absensiHariIni.some(r => r.jenisAbsen === 'Ijin dari Rumah');
+  const hasIjinKantor = absensiHariIni.some(r => r.jenisAbsen === 'Ijin dari Kantor');
   const masukRow = absensiHariIni.find(r => r.jenisAbsen === 'Absen Masuk');
 
   if (hasMasuk) {
-    const telat = isLambat(masukRow.jam, masukRow.menit);
     const jam = String(masukRow.jam).padStart(2, '0') + ':' + String(masukRow.menit).padStart(2, '0');
-    return { cls: telat ? 'warn' : 'ok', text: (telat ? 'Telat, masuk ' : 'Hadir ') + jam };
+    const telatRaw = isLambat(masukRow.jam, masukRow.menit);
+    // Kalau sebelumnya sudah "Ijin dari Rumah", masuk telat TIDAK dianggap terlambat
+    if (telatRaw && hasIjinRumah) {
+      return { cls: 'info', text: 'Ijin, masuk ' + jam };
+    }
+    return { cls: telatRaw ? 'warn' : 'ok', text: (telatRaw ? 'Telat, masuk ' : 'Hadir ') + jam };
   }
   if (hasDinas) return { cls: 'info', text: 'Dinas Lapangan (tanpa Absen Masuk)' };
   if (hasSakit) return { cls: 'warn', text: 'Sakit' };
-  if (hasIjin) return { cls: 'info', text: 'Ijin' };
+  if (hasIjinRumah || hasIjinKantor) return { cls: 'info', text: 'Ijin' };
   return { cls: 'warn', text: 'Belum absen' };
 }
 
@@ -597,31 +602,30 @@ function buildLaporanText() {
     const hasMasuk = absensi.some(a => a.jenisAbsen === 'Absen Masuk');
     const hasDinas = absensi.some(a => a.jenisAbsen === 'Dinas Lapangan dari Rumah');
     const hasSakit = absensi.some(a => a.jenisAbsen === 'Sakit');
-    const hasIjin = absensi.some(a => a.jenisAbsen === 'Ijin dari Rumah' || a.jenisAbsen === 'Ijin dari Kantor');
+    const hasIjinRumah = absensi.some(a => a.jenisAbsen === 'Ijin dari Rumah');
+    const hasIjinKantor = absensi.some(a => a.jenisAbsen === 'Ijin dari Kantor');
     const masukRow = absensi.find(a => a.jenisAbsen === 'Absen Masuk');
 
     // 1. Tidak masuk kerja: sakit, atau sama sekali tidak ada absen (masuk/dinas/ijin)
     if (hasSakit) {
       tidakMasuk.push(emp.nama + ' - Sakit');
-    } else if (!hasMasuk && !hasDinas && !hasIjin) {
+    } else if (!hasMasuk && !hasDinas && !hasIjinRumah && !hasIjinKantor) {
       tidakMasuk.push(emp.nama);
     }
 
-    // 2. Datang terlambat: HANYA dilihat dari jam record "Absen Masuk".
-    //    Jam pada record "Ijin dari Rumah"/"Ijin dari Kantor" TIDAK PERNAH dipakai
-    //    untuk cek terlambat, walaupun jamnya lebih dari 08:05.
-    if (masukRow && isLambat(masukRow.jam, masukRow.menit)) {
+    // 2. Datang terlambat: dilihat dari jam record "Absen Masuk".
+    //    Tapi kalau sebelumnya dia sudah "Ijin dari Rumah", masuk telat TIDAK
+    //    dihitung terlambat (sudah dianggap masuk kategori Ijin Per jam).
+    if (masukRow && isLambat(masukRow.jam, masukRow.menit) && !hasIjinRumah) {
       terlambat.push(emp.nama);
     }
 
     // 3. Dinas luar / WFH
     if (hasDinas) dinas.push(emp.nama);
 
-    // 5. Ijin per jam: HANYA untuk karyawan yang ijin (dari rumah/kantor) TANPA
-    //    ada "Absen Masuk" hari itu. Kalau dia sudah Absen Masuk lalu di jam
-    //    tertentu ambil "Ijin dari Kantor" (keluar sebentar), dia TIDAK dihitung
-    //    di kategori ini — dianggap tetap hadir normal.
-    if (hasIjin && !hasMasuk) ijin.push(emp.nama);
+    // 5. Ijin per jam: HANYA untuk jenis absen "Ijin dari Rumah".
+    //    "Ijin dari Kantor" tidak pernah masuk kategori ini.
+    if (hasIjinRumah) ijin.push(emp.nama);
   });
 
   const fmt = (arr) => arr.map(n => '- ' + n).join('\n');
