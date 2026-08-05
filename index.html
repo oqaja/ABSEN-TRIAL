@@ -166,36 +166,47 @@
   .today-summary-jam { font-size: 18px; font-weight: 800; margin-top: 2px; }
 
   /* Leaderboard */
-  .lb-top3 { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 12px; }
-  .lb-top-card {
-    flex: 1; min-width: 0; background: var(--card); border-radius: var(--radius);
-    padding: 14px 6px 12px; text-align: center; border: 1px solid var(--border);
-  }
-  .lb-top-card.rank-1 { order: 2; padding-top: 20px; border-color: rgba(255,186,0,0.4); background: linear-gradient(160deg, rgba(255,186,0,0.12), var(--card)); }
-  .lb-top-card.rank-2 { order: 1; }
-  .lb-top-card.rank-3 { order: 3; }
-  .lb-top-card.lb-me { border-color: var(--mint); box-shadow: 0 0 0 1px var(--mint) inset; }
-  .lb-medal { font-size: 20px; margin-bottom: 4px; }
-  .lb-avatar {
-    width: 40px; height: 40px; border-radius: 50%; background: var(--card-2);
+  .lb-top3 { display: flex; align-items: flex-end; gap: 10px; margin-bottom: 14px; margin-top: 6px; }
+  .lb-top-col { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; }
+  .lb-top-avatar {
+    width: 46px; height: 46px; border-radius: 50%; background: var(--card-2);
+    border: 2px solid var(--border);
     display: flex; align-items: center; justify-content: center; font-weight: 800;
-    color: var(--mint); margin: 0 auto 6px; font-size: 15px;
+    color: var(--mint); font-size: 16px; margin-bottom: 6px; flex-shrink: 0;
   }
-  .lb-top-card.rank-1 .lb-avatar { width: 50px; height: 50px; font-size: 18px; }
-  .lb-top-name { font-size: 11px; font-weight: 700; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .lb-top-persen { font-size: 15px; font-weight: 800; color: var(--mint); }
+  .lb-top-col.rank-1 .lb-top-avatar { width: 58px; height: 58px; font-size: 20px; border-color: var(--yellow); }
+  .lb-top-col.lb-me .lb-top-avatar { border-color: var(--mint); box-shadow: 0 0 0 2px rgba(0,200,150,0.3); }
+  .lb-top-name {
+    font-size: 12px; font-weight: 700; color: var(--text); text-align: center;
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 6px;
+  }
+  .lb-top-badge {
+    background: var(--card); border: 1px solid var(--border); color: var(--mint);
+    font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 20px;
+    margin-bottom: -12px; position: relative; z-index: 2; white-space: nowrap;
+  }
+  .lb-bar {
+    width: 100%; border-radius: 16px 16px 0 0; display: flex; align-items: flex-start;
+    justify-content: center; padding-top: 26px; font-size: 22px; font-weight: 800;
+    color: rgba(0,200,150,0.35); background: linear-gradient(180deg, rgba(0,200,150,0.28), rgba(0,200,150,0.06));
+    border: 1px solid rgba(0,200,150,0.15); border-bottom: none; box-sizing: border-box;
+  }
+  .lb-top-col.rank-1 .lb-bar { height: 108px; background: linear-gradient(180deg, rgba(255,186,0,0.35), rgba(255,186,0,0.08)); border-color: rgba(255,186,0,0.2); color: rgba(255,186,0,0.4); }
+  .lb-top-col.rank-2 .lb-bar { height: 82px; }
+  .lb-top-col.rank-3 .lb-bar { height: 60px; }
 
-  .lb-rest-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .lb-rest-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
   .lb-rest-item:last-child { border-bottom: none; }
   .lb-rest-item.lb-me { background: var(--primary-light); border-radius: var(--radius-sm); padding-left: 8px; padding-right: 8px; margin: 0 -8px; }
-  .lb-rest-rank { width: 22px; text-align: center; font-size: 13px; font-weight: 800; color: var(--text-muted); flex-shrink: 0; }
+  .lb-rest-rank { width: 26px; text-align: center; font-size: 13px; font-weight: 800; color: var(--text-muted); flex-shrink: 0; }
   .lb-rest-avatar {
-    width: 32px; height: 32px; border-radius: 50%; background: var(--card-2);
+    width: 36px; height: 36px; border-radius: 50%; background: var(--card-2);
     display: flex; align-items: center; justify-content: center; font-weight: 800;
-    color: var(--text-muted); font-size: 12px; flex-shrink: 0;
+    color: var(--text-muted); font-size: 13px; flex-shrink: 0;
   }
-  .lb-rest-name { flex: 1; font-size: 14px; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .lb-rest-persen { font-size: 14px; font-weight: 800; color: var(--mint); flex-shrink: 0; }
+  .lb-rest-info { flex: 1; min-width: 0; }
+  .lb-rest-name { font-size: 14px; font-weight: 700; color: var(--text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-rest-pts { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
 
   /* ===== ABSEN ===== */
   #page-absen { padding: 16px; }
@@ -1372,17 +1383,19 @@ async function renderLeaderboard() {
 
   const top3 = ranked.slice(0, 3);
   const rest = ranked.slice(3);
-  const medals = ['🥇', '🥈', '🥉'];
+  // Urutan tampil: rank 2 (kiri), rank 1 (tengah, paling tinggi), rank 3 (kanan)
+  const displayOrder = [1, 0, 2].filter(i => top3[i]);
 
-  top3Wrap.innerHTML = top3.map((emp, i) => {
+  top3Wrap.innerHTML = displayOrder.map(i => {
+    const emp = top3[i];
     const rank = i + 1;
     const initial = emp.nama.charAt(0).toUpperCase();
     const isMe = emp.nama === nama;
-    return `<div class="lb-top-card rank-${rank}${isMe ? ' lb-me' : ''}">
-      <div class="lb-medal">${medals[i]}</div>
-      <div class="lb-avatar">${initial}</div>
+    return `<div class="lb-top-col rank-${rank}${isMe ? ' lb-me' : ''}">
+      <div class="lb-top-avatar">${initial}</div>
       <div class="lb-top-name">${escapeHtml(emp.nama)}</div>
-      <div class="lb-top-persen">${emp.poin}</div>
+      <div class="lb-top-badge">${emp.poin} poin</div>
+      <div class="lb-bar">${rank}</div>
     </div>`;
   }).join('');
 
@@ -1391,10 +1404,12 @@ async function renderLeaderboard() {
     const initial = emp.nama.charAt(0).toUpperCase();
     const isMe = emp.nama === nama;
     return `<div class="lb-rest-item${isMe ? ' lb-me' : ''}">
-      <div class="lb-rest-rank">${rank}</div>
+      <div class="lb-rest-rank">${String(rank).padStart(2, '0')}</div>
       <div class="lb-rest-avatar">${initial}</div>
-      <div class="lb-rest-name">${escapeHtml(emp.nama)}</div>
-      <div class="lb-rest-persen">${emp.poin}</div>
+      <div class="lb-rest-info">
+        <div class="lb-rest-name">${escapeHtml(emp.nama)}</div>
+        <div class="lb-rest-pts">${emp.poin} poin</div>
+      </div>
     </div>`;
   }).join('') : '';
 }
