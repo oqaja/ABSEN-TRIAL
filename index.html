@@ -192,6 +192,16 @@
   .action-card-sub { font-size: 12.5px; opacity: 0.85; max-width: 68%; font-weight: 500; line-height: 1.4; }
   .action-card-emoji { position: absolute; right: 16px; bottom: 14px; font-size: 40px; opacity: 0.9; }
 
+  /* Card leaderboard ringkas di Home, nyambung ke tab Papan */
+  .action-card.purple { background: linear-gradient(150deg, #9179FF 0%, #5738C4 100%); }
+  .action-card-rank {
+    position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.16); border: 1.5px solid rgba(255,255,255,0.3);
+    border-radius: 16px; padding: 10px 14px; text-align: center; min-width: 52px;
+  }
+  .action-card-rank .rank-num { font-size: 20px; font-weight: 800; font-family: var(--font-display); line-height: 1; color: #fff; }
+  .action-card-rank .rank-label { font-size: 8.5px; font-weight: 700; opacity: 0.85; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.3px; color: #fff; }
+
   /* Card batas absen (countdown ke 08:05) — pakai bahasa action-card */
   .today-absen-card {
     background: linear-gradient(150deg, #00C896 0%, #00875F 100%);
@@ -418,6 +428,15 @@
       <div class="action-card-title">Absen Sekarang</div>
       <div class="action-card-sub">Tap buat check-in, check-out, atau ijin</div>
       <div class="action-card-emoji">📋</div>
+    </div>
+
+    <div class="action-card purple" onclick="goPage('leaderboard')">
+      <div class="action-card-title">Leaderboard</div>
+      <div class="action-card-sub">Cek posisi kehadiran kamu bulan ini</div>
+      <div class="action-card-rank">
+        <div class="rank-num" id="homeRankNum">—</div>
+        <div class="rank-label">Peringkat</div>
+      </div>
     </div>
 
     <div class="today-absen-card" id="countdownAbsenCard" style="display:none">
@@ -723,6 +742,7 @@ async function renderHome() {
   renderDateScroll();
   await renderHomeCalendar();
   await renderTodayAbsen();
+  renderHomeRank();
 
   const savedFoto = localStorage.getItem('absensi_foto');
   const badgeAvatar = document.querySelector('.badge-circle');
@@ -1443,6 +1463,24 @@ async function fetchLeaderboard() {
     console.error('fetchLeaderboard error:', e);
     return { ok: false, data: [] };
   }
+}
+
+// Hitung & tampilkan peringkat user saat ini di card Leaderboard pada Home
+async function renderHomeRank() {
+  const badge = document.getElementById('homeRankNum');
+  if (!badge) return;
+
+  if (!nama) { badge.textContent = '—'; return; }
+
+  const result = await fetchLeaderboard();
+  if (!result.ok) { badge.textContent = '—'; return; }
+
+  const ranked = result.data
+    .map(emp => ({ nama: emp.nama, poin: hitungTotalPoin(emp.absensi) }))
+    .sort((a, b) => b.poin - a.poin || a.nama.localeCompare(b.nama));
+
+  const idx = ranked.findIndex(e => e.nama === nama);
+  badge.textContent = idx === -1 ? '—' : '#' + (idx + 1);
 }
 
 async function renderLeaderboard() {
