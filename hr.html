@@ -144,6 +144,41 @@
   .report-actions { display: flex; gap: 8px; }
   .report-actions .btn { margin-top: 0; }
   .copy-toast { text-align: center; font-size: 12px; color: var(--mint); margin-top: 8px; height: 16px; }
+
+  /* ===== Detail item absen jadi bisa diklik ===== */
+  .riwayat-item.clickable { cursor: pointer; }
+  .riwayat-item.clickable:active { opacity: 0.7; }
+  .riwayat-item-hint { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  /* ===== Modal Detail Absen (foto, lokasi, QR) ===== */
+  .absen-modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+    display: none; align-items: flex-end; justify-content: center; z-index: 1000;
+  }
+  .absen-modal-backdrop.active { display: flex; }
+  .absen-modal {
+    background: var(--card); width: 100%; max-width: 480px;
+    border-radius: var(--radius) var(--radius) 0 0; padding: 18px 18px 24px;
+    max-height: 88vh; overflow-y: auto; border: 1px solid var(--border); border-bottom: none;
+  }
+  .absen-modal-top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .absen-modal-title { font-size: 16px; font-weight: 800; flex: 1; }
+  .absen-modal-close {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--card-2);
+    border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 15px; flex-shrink: 0; color: var(--text);
+  }
+  .absen-modal-section { margin-bottom: 16px; }
+  .absen-modal-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+  .absen-modal-photo { width: 100%; border-radius: var(--radius-sm); background: var(--card-2); display: block; max-height: 320px; object-fit: cover; }
+  .absen-modal-photo-empty { padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px; background: var(--card-2); border-radius: var(--radius-sm); }
+  .absen-modal-link { display: inline-block; margin-top: 8px; font-size: 13px; color: var(--mint); font-weight: 700; text-decoration: none; }
+  .absen-modal-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+  .absen-modal-row:last-child { border-bottom: none; }
+  .absen-modal-row .k { color: var(--text-muted); }
+  .absen-modal-row .v { font-weight: 700; text-align: right; }
+  .qr-valid { color: var(--mint); }
+  .qr-invalid { color: var(--danger); }
 </style>
 </head>
 <body>
@@ -237,6 +272,41 @@
   </div>
 </div>
 
+<!-- ===== MODAL DETAIL ABSEN (foto, lokasi, status QR) ===== -->
+<div class="absen-modal-backdrop" id="absenModalBackdrop" onclick="if(event.target===this) closeAbsenDetail()">
+  <div class="absen-modal">
+    <div class="absen-modal-top">
+      <div class="absen-modal-title" id="amTitle">Detail Absen</div>
+      <div class="absen-modal-close" onclick="closeAbsenDetail()">✕</div>
+    </div>
+
+    <div class="absen-modal-section">
+      <div class="absen-modal-label">📸 Foto Selfie</div>
+      <div id="amFotoBox"></div>
+    </div>
+
+    <div class="absen-modal-section">
+      <div class="absen-modal-label">📍 Lokasi GPS Karyawan</div>
+      <div id="amLokasiBox"></div>
+    </div>
+
+    <div class="absen-modal-section">
+      <div class="absen-modal-label">🔳 Status QR Code</div>
+      <div id="amQrBox"></div>
+    </div>
+
+    <div class="absen-modal-section" id="amScreenshotSection" style="display:none">
+      <div class="absen-modal-label">🩺 Screenshot Bukti Sakit</div>
+      <div id="amScreenshotBox"></div>
+    </div>
+
+    <div class="absen-modal-section" id="amKeteranganSection" style="display:none">
+      <div class="absen-modal-label">💬 Keterangan</div>
+      <div id="amKeteranganBox" style="font-size:13.5px; color: var(--text)"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 // GANTI ini sesuai URL Web App Apps Script kamu (yang sama dengan absensi.html)
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzkn2WiMz8odZt3EDZX5MwVDPITiFQ9Qvcm2JsZ_E8qYsxUnWk-fkgj-dWhNiU_Oj8E/exec';
@@ -258,6 +328,7 @@ let todayCache = [];       // hasil card "Hari Ini"
 let selectedNama = '';
 let selectedMonth = 0, selectedYear = 0, selectedTanggal = null; // selectedTanggal: null = sebulan penuh, angka = 1 hari
 let detailFromToday = false;
+let detailRowsFlat = []; // menyimpan row absensi lengkap (foto/lokasi/QR) yang sedang tampil di halaman Detail
 
 function isLambat(jam, menit) { return jam > 8 || (jam === 8 && menit > 5); }
 function escapeHtml(str) {
@@ -530,6 +601,7 @@ function backToHome() { goPage('home'); }
 
 function renderDetailRiwayat(absensi, month, year) {
   const container = document.getElementById('detailRiwayat');
+  detailRowsFlat = [];
   if (!absensi.length) {
     container.innerHTML = '<div class="card"><div class="riwayat-empty">Tidak ada absensi pada periode ini.</div></div>';
     return;
@@ -563,12 +635,20 @@ function renderDetailRiwayat(absensi, month, year) {
       const lambatTag = (row.jenisAbsen === 'Absen Masuk' && isLambat(row.jam, row.menit))
         ? '<span class="riwayat-lambat">Terlambat</span>' : '';
       const ketHtml = row.keterangan ? '<div class="riwayat-ket">' + escapeHtml(row.keterangan) + '</div>' : '';
-      return `<div class="riwayat-item">
+
+      // Simpan row lengkap (termasuk lokasi/foto/QR) ke array global, dipakai saat modal dibuka
+      detailRowsFlat.push(row);
+      const idx = detailRowsFlat.length - 1;
+      const hasDetail = row.fotoSelfie || row.latitude || row.statusQr || row.screenshotBukti;
+      const hintHtml = hasDetail ? '<div class="riwayat-item-hint">Ketuk untuk lihat foto & lokasi ›</div>' : '';
+
+      return `<div class="riwayat-item clickable" onclick="openAbsenDetail(${idx})">
         <div class="riwayat-icon">${icon}</div>
         <div class="riwayat-info">
           <div class="riwayat-jenis">${escapeHtml(row.jenisAbsen)}${lambatTag}</div>
           <div class="riwayat-meta">${jam}</div>
           ${ketHtml}
+          ${hintHtml}
         </div>
       </div>`;
     }).join('');
@@ -683,6 +763,92 @@ function kirimKeWA() {
   const text = document.getElementById('laporanText').value;
   const url = 'https://wa.me/?text=' + encodeURIComponent(text);
   window.open(url, '_blank');
+}
+
+// ===== MODAL DETAIL ABSEN (foto, lokasi, status QR) =====
+
+// Ubah link "Google Drive file" (dari file.getUrl()) jadi link gambar yang bisa
+// langsung dipakai di tag <img>. Syarat: file di folder harus di-share "Anyone with the link".
+function driveThumbUrl(driveUrl) {
+  if (!driveUrl) return '';
+  const match = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (!match) return driveUrl;
+  return 'https://drive.google.com/thumbnail?id=' + match[1] + '&sz=w1000';
+}
+
+function renderFotoBox(url, emptyText) {
+  if (!url) {
+    return '<div class="absen-modal-photo-empty">' + emptyText + '</div>';
+  }
+  const thumb = driveThumbUrl(url);
+  return '<img class="absen-modal-photo" src="' + thumb + '" alt="Foto absen" '
+    + 'onerror="this.outerHTML=\'<div class=&quot;absen-modal-photo-empty&quot;>Foto belum bisa ditampilkan langsung. Buka manual lewat link di bawah.</div>\'">'
+    + '<a class="absen-modal-link" href="' + escapeHtml(url) + '" target="_blank" rel="noopener">Buka foto asli di Google Drive ↗</a>';
+}
+
+function openAbsenDetail(idx) {
+  const row = detailRowsFlat[idx];
+  if (!row) return;
+
+  const jam = String(row.jam).padStart(2, '0') + ':' + String(row.menit).padStart(2, '0');
+  document.getElementById('amTitle').textContent = row.jenisAbsen + ' • ' + jam;
+
+  // Foto selfie (atau screenshot kalau jenisnya Sakit dan tidak ada foto selfie)
+  const isSakit = row.jenisAbsen === 'Sakit';
+  document.getElementById('amFotoBox').innerHTML = renderFotoBox(
+    row.fotoSelfie,
+    isSakit ? 'Tidak ada selfie (absen Sakit).' : 'Tidak ada foto untuk absen ini.'
+  );
+
+  // Lokasi GPS
+  const lokasiBox = document.getElementById('amLokasiBox');
+  if (row.latitude != null && row.longitude != null && row.latitude !== '' && row.longitude !== '') {
+    const mapsUrl = 'https://www.google.com/maps?q=' + row.latitude + ',' + row.longitude;
+    lokasiBox.innerHTML = `
+      <div class="absen-modal-row"><div class="k">Latitude</div><div class="v">${escapeHtml(String(row.latitude))}</div></div>
+      <div class="absen-modal-row"><div class="k">Longitude</div><div class="v">${escapeHtml(String(row.longitude))}</div></div>
+      <a class="absen-modal-link" href="${mapsUrl}" target="_blank" rel="noopener">Buka lokasi di Google Maps ↗</a>`;
+  } else {
+    lokasiBox.innerHTML = '<div class="absen-modal-photo-empty">Lokasi tidak tercatat untuk absen ini.</div>';
+  }
+
+  // Status QR (hanya relevan untuk jenis absen yang butuh QR, misal Absen Masuk/Pulang)
+  const qrBox = document.getElementById('amQrBox');
+  if (row.statusQr) {
+    const isValid = row.statusQr === 'VALID';
+    qrBox.innerHTML = `
+      <div class="absen-modal-row">
+        <div class="k">Status</div>
+        <div class="v ${isValid ? 'qr-valid' : 'qr-invalid'}">${escapeHtml(row.statusQr)}</div>
+      </div>
+      <div class="absen-modal-row"><div class="k">Hasil Scan</div><div class="v">${escapeHtml(row.hasilQr || '-')}</div></div>`;
+  } else {
+    qrBox.innerHTML = '<div class="absen-modal-photo-empty">Absen ini tidak menggunakan QR code.</div>';
+  }
+
+  // Screenshot bukti sakit
+  const ssSection = document.getElementById('amScreenshotSection');
+  if (row.screenshotBukti) {
+    ssSection.style.display = 'block';
+    document.getElementById('amScreenshotBox').innerHTML = renderFotoBox(row.screenshotBukti, 'Tidak ada screenshot.');
+  } else {
+    ssSection.style.display = 'none';
+  }
+
+  // Keterangan
+  const ketSection = document.getElementById('amKeteranganSection');
+  if (row.keterangan) {
+    ketSection.style.display = 'block';
+    document.getElementById('amKeteranganBox').textContent = row.keterangan;
+  } else {
+    ketSection.style.display = 'none';
+  }
+
+  document.getElementById('absenModalBackdrop').classList.add('active');
+}
+
+function closeAbsenDetail() {
+  document.getElementById('absenModalBackdrop').classList.remove('active');
 }
 </script>
 </body>
