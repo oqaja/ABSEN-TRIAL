@@ -692,7 +692,7 @@ let latitude = '', longitude = '', photoBase64 = '';
 let stream = null, html5QrCode = null;
 let absensiCache = null;
 let chartInstance = null;
-let sudahAbsenHariIni = false; // NEW: status absen hari ini, dipakai buat auto-hide card countdown
+let sudahAbsenHariIni = false; // status absen hari ini, dipakai buat auto-hide card countdown
 
 function hashString(str) {
   let h = 0;
@@ -782,9 +782,9 @@ function updateCountdownCard() {
   const now = new Date();
   const day = now.getDay(); // 0 = Minggu
 
-  const batasFitur = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 0, 0); // NEW: batas fitur 10:00
+  const batasFitur = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 0, 0); // batas fitur 10:00
 
-  // NEW: sembunyikan kalau hari Minggu, user udah absen hari ini, atau udah lewat jam 10:00
+  // sembunyikan kalau hari Minggu, user udah absen hari ini, atau udah lewat jam 10:00
   if (day === 0 || sudahAbsenHariIni || now >= batasFitur) {
     card.style.display = 'none';
     return;
@@ -817,8 +817,8 @@ async function renderTodayAbsen() {
   const wrap = document.getElementById('todaySummaryWrap');
   if (!nama) {
     wrap.style.display = 'none';
-    sudahAbsenHariIni = false; // NEW
-    updateCountdownCard(); // NEW
+    sudahAbsenHariIni = false;
+    updateCountdownCard();
     return;
   }
   wrap.style.display = 'flex';
@@ -833,7 +833,7 @@ async function renderTodayAbsen() {
   const masukEl = document.getElementById('todayMasukJam');
   const pulangEl = document.getElementById('todayPulangJam');
 
-  sudahAbsenHariIni = todayRows.length > 0; // NEW: set status sebelum refresh card
+  sudahAbsenHariIni = todayRows.length > 0; // set status sebelum refresh card
 
   if (todayRows.length) {
     const first = todayRows[0];
@@ -845,7 +845,7 @@ async function renderTodayAbsen() {
     pulangEl.textContent = '--:--';
   }
 
-  updateCountdownCard(); // NEW: refresh card countdown setelah tau status absen hari ini
+  updateCountdownCard(); // refresh card countdown setelah tau status absen hari ini
 }
 
 async function renderHomeCalendar() {
@@ -1209,59 +1209,62 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+// Grafik jam masuk harian: bar tinggi = jam check-in (Absen Masuk / Dinas Lapangan dari Rumah),
+// hijau kalau tepat waktu, merah kalau lewat 08:05, plus garis putus-putus batas 08:05.
 function renderChart(absensi, lastDay, year, month) {
-  // Build per-day data
-  const masukPerDay = new Array(lastDay).fill(0);
-  const dinasPerDay = new Array(lastDay).fill(0);
-  const ijinPerDay = new Array(lastDay).fill(0);
-  const sakitPerDay = new Array(lastDay).fill(0);
-  const lambatPerDay = new Array(lastDay).fill(0);
+  const BATAS_JAM = 8 + 5 / 60; // 08:05 dalam desimal jam
 
-  const hadirSeen = new Set(), dinasSeen = new Set(), ijinSeen = new Set(), sakitSeen = new Set(), lambatSeen = new Set();
+  // Ambil jam check-in PALING AWAL per hari (kalau ada beberapa baris di hari yang sama)
+  const jamMasukPerDay = new Array(lastDay).fill(null);
+  const seenDay = new Set();
 
-  absensi.forEach(row => {
-    const d = row.tanggal - 1;
-    const jenis = row.jenisAbsen, jam = row.jam, menit = row.menit;
-    if (jenis === 'Absen Masuk' && !hadirSeen.has(row.tanggal)) { masukPerDay[d] = 1; hadirSeen.add(row.tanggal); if (isLambat(jam, menit) && !lambatSeen.has(row.tanggal)) { lambatPerDay[d] = 1; lambatSeen.add(row.tanggal); } }
-    else if (jenis === 'Dinas Lapangan dari Rumah' && !dinasSeen.has(row.tanggal)) { dinasPerDay[d] = 1; dinasSeen.add(row.tanggal); }
-    else if ((jenis === 'Ijin dari Rumah' || jenis === 'Ijin dari Kantor') && !ijinSeen.has(row.tanggal)) { ijinPerDay[d] = 1; ijinSeen.add(row.tanggal); }
-    else if (jenis === 'Sakit' && !sakitSeen.has(row.tanggal)) { sakitPerDay[d] = 1; sakitSeen.add(row.tanggal); }
-  });
+  absensi
+    .filter(r => r.jenisAbsen === 'Absen Masuk' || r.jenisAbsen === 'Dinas Lapangan dari Rumah')
+    .slice()
+    .sort((a, b) => (a.jam !== b.jam ? a.jam - b.jam : a.menit - b.menit))
+    .forEach(row => {
+      if (seenDay.has(row.tanggal)) return;
+      seenDay.add(row.tanggal);
+      jamMasukPerDay[row.tanggal - 1] = +(row.jam + row.menit / 60).toFixed(3);
+    });
 
   const labels = Array.from({length: lastDay}, (_, i) => i + 1);
+  const garisBatas = new Array(lastDay).fill(BATAS_JAM);
+  const barColors = jamMasukPerDay.map(v => v === null ? 'rgba(0,0,0,0)' : (v > BATAS_JAM ? '#E24545' : '#00B383'));
+
+  const validValues = jamMasukPerDay.filter(v => v !== null);
+  let yMin = 6, yMax = 10;
+  if (validValues.length) {
+    yMin = Math.floor(Math.min(6, Math.min(...validValues) - 0.5));
+    yMax = Math.ceil(Math.max(10, Math.max(...validValues) + 0.5));
+  }
 
   if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
 
   const ctx = document.getElementById('absenChart').getContext('2d');
   chartInstance = new Chart(ctx, {
-    type: 'line',
     data: {
       labels,
       datasets: [
         {
-          label: 'Masuk', data: masukPerDay, fill: true,
-          backgroundColor: 'rgba(0,179,131,0.22)', borderColor: '#00B383',
-          tension: 0.4, pointRadius: 2, borderWidth: 2,
+          type: 'bar',
+          label: 'Jam Masuk',
+          data: jamMasukPerDay,
+          backgroundColor: barColors,
+          borderRadius: 4,
+          barPercentage: 0.6,
+          categoryPercentage: 0.7,
         },
         {
-          label: 'Dinas Lapangan', data: dinasPerDay, fill: true,
-          backgroundColor: 'rgba(51,99,236,0.18)', borderColor: '#3363EC',
-          tension: 0.4, pointRadius: 2, borderWidth: 2,
-        },
-        {
-          label: 'Ijin', data: ijinPerDay, fill: true,
-          backgroundColor: 'rgba(124,92,252,0.18)', borderColor: '#7C5CFC',
-          tension: 0.4, pointRadius: 2, borderWidth: 2,
-        },
-        {
-          label: 'Sakit', data: sakitPerDay, fill: true,
-          backgroundColor: 'rgba(255,201,60,0.25)', borderColor: '#E8A800',
-          tension: 0.4, pointRadius: 2, borderWidth: 2,
-        },
-        {
-          label: 'Terlambat', data: lambatPerDay, fill: true,
-          backgroundColor: 'rgba(226,69,69,0.18)', borderColor: '#E24545',
-          tension: 0.4, pointRadius: 2, borderWidth: 2,
+          type: 'line',
+          label: 'Batas (08:05)',
+          data: garisBatas,
+          borderColor: '#ACA89D',
+          borderDash: [6, 4],
+          borderWidth: 1.5,
+          pointRadius: 0,
+          fill: false,
+          tension: 0,
         },
       ]
     },
@@ -1272,13 +1275,28 @@ function renderChart(absensi, lastDay, year, month) {
           display: true, position: 'bottom',
           labels: { color: '#77746C', font: { size: 10 }, boxWidth: 10, padding: 10, usePointStyle: true }
         },
-        tooltip: { mode: 'index', intersect: false,
-          callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.raw }
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              if (ctx.raw === null) return 'Tidak absen';
+              const totalMin = Math.round(ctx.raw * 60);
+              const h = Math.floor(totalMin / 60), m = totalMin % 60;
+              const jamStr = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+              return ctx.dataset.label === 'Batas (08:05)' ? 'Batas: ' + jamStr : 'Masuk: ' + jamStr;
+            }
+          }
         }
       },
       scales: {
-        x: { stacked: true, ticks: { color: '#77746C', font: { size: 10 }, maxTicksLimit: 10 }, grid: { color: 'rgba(32,31,28,0.05)' }, border: { color: 'transparent' } },
-        y: { stacked: true, min: 0, max: 2, ticks: { color: '#77746C', font: { size: 10 }, stepSize: 1 }, grid: { color: 'rgba(32,31,28,0.05)' }, border: { color: 'transparent' } }
+        x: { ticks: { color: '#77746C', font: { size: 10 }, maxTicksLimit: 10 }, grid: { color: 'rgba(32,31,28,0.05)' }, border: { color: 'transparent' } },
+        y: {
+          min: yMin, max: yMax,
+          ticks: {
+            color: '#77746C', font: { size: 10 }, stepSize: 1,
+            callback: v => String(v).padStart(2, '0') + ':00'
+          },
+          grid: { color: 'rgba(32,31,28,0.05)' }, border: { color: 'transparent' }
+        }
       }
     }
   });
