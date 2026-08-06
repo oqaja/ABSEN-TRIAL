@@ -352,9 +352,15 @@
   /* RIWAYAT ABSENSI */
   .riwayat-day-card {
     background: var(--surface); border-radius: var(--radius);
-    border: 1px solid var(--border); box-shadow: var(--shadow-card); padding: 14px 16px 4px; margin-bottom: 12px;
+    border: 1px solid var(--border); box-shadow: var(--shadow-card); padding: 14px 16px; margin-bottom: 12px;
   }
-  .riwayat-day-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+  .riwayat-day-card .riwayat-item:last-child { padding-bottom: 2px; }
+  .riwayat-day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .riwayat-day-summary { font-size: 11px; color: var(--ink-soft); font-weight: 700; display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .riwayat-day-chevron { font-size: 11px; color: var(--ink-faint); transition: transform 0.25s ease; display: inline-block; }
+  .riwayat-day-card.expanded .riwayat-day-chevron { transform: rotate(180deg); }
+  .riwayat-day-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+  .riwayat-day-card.expanded .riwayat-day-body { max-height: 2000px; }
   .riwayat-day-title { font-size: 13px; font-weight: 800; color: var(--ink); text-transform: uppercase; letter-spacing: 0.4px; font-family: var(--font-display); }
   .riwayat-item {
     display: flex; align-items: center; gap: 12px;
@@ -1169,7 +1175,7 @@ function renderRiwayat(absensi) {
   // Hari terbaru ditampilkan paling atas
   const sortedDates = [...byDate.keys()].sort((a, b) => b - a);
 
-  container.innerHTML = sortedDates.map(tgl => {
+  container.innerHTML = sortedDates.map((tgl, idx) => {
     // Di dalam satu hari, mulai dari jam paling awal (Absen Masuk dulu)
     const items = byDate.get(tgl).slice().sort((a, b) => {
       if (a.jam !== b.jam) return a.jam - b.jam;
@@ -1194,11 +1200,18 @@ function renderRiwayat(absensi) {
       </div>`;
     }).join('');
 
-    return `<div class="riwayat-day-card">
-      <div class="riwayat-day-header">
+    const jamPertama = String(items[0].jam).padStart(2, '0') + ':' + String(items[0].menit).padStart(2, '0');
+    const ringkasan = items.length > 1 ? `${items.length} log · mulai ${jamPertama}` : jamPertama;
+    const expandedCls = idx === 0 ? ' expanded' : ''; // hari terbaru langsung terbuka
+
+    return `<div class="riwayat-day-card${expandedCls}">
+      <div class="riwayat-day-header" onclick="this.parentElement.classList.toggle('expanded')">
         <div class="riwayat-day-title">${dayName}, Tgl ${tgl}</div>
+        <div class="riwayat-day-summary">${ringkasan} <span class="riwayat-day-chevron">▾</span></div>
       </div>
-      ${itemsHtml}
+      <div class="riwayat-day-body">
+        ${itemsHtml}
+      </div>
     </div>`;
   }).join('');
 }
