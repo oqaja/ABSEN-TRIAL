@@ -635,6 +635,10 @@
 // URL dasar Apps Script (TANPA query string di sini, query ditambahkan saat fetch)
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxDjfUyqGAaSfJxBHZ2ULgXyttVSgTJFBt9D8KF6m-wvbcNEzEbol9DbtzzPoxMXP79/exec';
 
+// Kode QR resmi kantor. HARUS sama persis dengan VALID_QR_CODE di Code.gs,
+// dipakai untuk validasi instan di HP begitu QR selesai discan (sebelum lanjut ke step lokasi/foto).
+const VALID_QR_CODE = 'MABES-SHOEPOLICE';
+
 const GREETINGS = [
   { text: "Di era AI kayak sekarang, yang paling dibutuhin tetep manusia yang konsisten. Lo salah satunya! 💪", emoji: "🤖" },
   { text: "Inflasi boleh naik, tapi semangat lo jangan ikut-ikutan. Tetap gas hari ini!", emoji: "📈" },
@@ -978,13 +982,33 @@ function startQrScanner() {
   html5QrCode.start({ facingMode:"environment" }, { fps:10, qrbox:220 },
     (decodedText) => {
       qrResult = decodedText;
-      html5QrCode.stop();
-      document.getElementById('qrResultBox').innerHTML = '<div class="status-box status-ok">QR terbaca: ' + decodedText + '</div>';
-      setTimeout(() => { showAbsenStep(4); getLocation(); }, 800);
+      html5QrCode.stop().catch(() => {});
+
+      // Validasi QR LANGSUNG di HP (client-side), sebelum lanjut ke step lokasi/foto.
+      // Kalau QR yang discan bukan QR resmi kantor, batalkan absen ini dan
+      // otomatis balik ke pemilihan jenis absen (bukan lanjut submit dengan status "TIDAK VALID").
+      if (decodedText === VALID_QR_CODE) {
+        document.getElementById('qrResultBox').innerHTML = '<div class="status-box status-ok">✅ QR terbaca &amp; valid</div>';
+        setTimeout(() => { showAbsenStep(4); getLocation(); }, 800);
+      } else {
+        document.getElementById('qrResultBox').innerHTML =
+          '<div class="status-box status-fail">❌ QR tidak valid. Ini bukan QR resmi kantor — absen dibatalkan, silakan scan ulang QR di lokasi kantor.</div>';
+        setTimeout(() => { kembaliKePemilihanJenis(); }, 2000);
+      }
     }, () => {}
   ).catch(err => {
     document.getElementById('qrResultBox').innerHTML = '<div class="status-box status-fail">Gagal akses kamera: ' + err + '</div>';
   });
+}
+
+// Reset ringan: balik ke step pemilihan jenis absen (step2) tanpa perlu login PIN ulang.
+// Dipakai saat QR yang discan terbukti tidak valid.
+function kembaliKePemilihanJenis() {
+  if (html5QrCode) { try { html5QrCode.stop(); } catch(e){} }
+  qrResult = ''; keterangan = ''; screenshotBase64 = ''; photoBase64 = '';
+  document.getElementById('qrResultBox').innerHTML = '';
+  document.getElementById('locationResultBox').innerHTML = '';
+  showAbsenStep(2);
 }
 function getLocation() {
   if (!navigator.geolocation) {
