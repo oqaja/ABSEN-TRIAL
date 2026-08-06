@@ -173,6 +173,7 @@
   .absen-modal-photo { width: 100%; border-radius: var(--radius-sm); background: var(--card-2); display: block; max-height: 320px; object-fit: cover; }
   .absen-modal-photo-empty { padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px; background: var(--card-2); border-radius: var(--radius-sm); }
   .absen-modal-link { display: inline-block; margin-top: 8px; font-size: 13px; color: var(--mint); font-weight: 700; text-decoration: none; }
+  .absen-modal-map { width: 100%; height: 200px; border: 0; border-radius: var(--radius-sm); margin-top: 10px; display: block; background: var(--card-2); }
   .absen-modal-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13.5px; }
   .absen-modal-row:last-child { border-bottom: none; }
   .absen-modal-row .k { color: var(--text-muted); }
@@ -291,7 +292,7 @@
     </div>
 
     <div class="absen-modal-section">
-      <div class="absen-modal-label">🔳 Status QR Code</div>
+      <div class="absen-modal-label">🔳 Lokasi QR Code</div>
       <div id="amQrBox"></div>
     </div>
 
@@ -309,7 +310,7 @@
 
 <script>
 // GANTI ini sesuai URL Web App Apps Script kamu (yang sama dengan absensi.html)
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxDjfUyqGAaSfJxBHZ2ULgXyttVSgTJFBt9D8KF6m-wvbcNEzEbol9DbtzzPoxMXP79/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzkn2WiMz8odZt3EDZX5MwVDPITiFQ9Qvcm2JsZ_E8qYsxUnWk-fkgj-dWhNiU_Oj8E/exec';
 
 const JENIS_ICON = {
   'Absen Masuk': '🟢',
@@ -804,7 +805,9 @@ function openAbsenDetail(idx) {
   const lokasiBox = document.getElementById('amLokasiBox');
   if (row.latitude != null && row.longitude != null && row.latitude !== '' && row.longitude !== '') {
     const mapsUrl = 'https://www.google.com/maps?q=' + row.latitude + ',' + row.longitude;
+    const embedUrl = 'https://maps.google.com/maps?q=' + row.latitude + ',' + row.longitude + '&z=16&output=embed';
     lokasiBox.innerHTML = `
+      <iframe class="absen-modal-map" src="${embedUrl}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       <div class="absen-modal-row"><div class="k">Latitude</div><div class="v">${escapeHtml(String(row.latitude))}</div></div>
       <div class="absen-modal-row"><div class="k">Longitude</div><div class="v">${escapeHtml(String(row.longitude))}</div></div>
       <a class="absen-modal-link" href="${mapsUrl}" target="_blank" rel="noopener">Buka lokasi di Google Maps ↗</a>`;
@@ -812,16 +815,20 @@ function openAbsenDetail(idx) {
     lokasiBox.innerHTML = '<div class="absen-modal-photo-empty">Lokasi tidak tercatat untuk absen ini.</div>';
   }
 
-  // Status QR (hanya relevan untuk jenis absen yang butuh QR, misal Absen Masuk/Pulang)
+  // Lokasi QR Code — tampilkan kode QR-nya (mis. MABES-SHOEPOLICE) sebagai info utama,
+  // plus tag valid/tidak valid.
   const qrBox = document.getElementById('amQrBox');
-  if (row.statusQr) {
+  if (row.statusQr || row.hasilQr) {
     const isValid = row.statusQr === 'VALID';
     qrBox.innerHTML = `
       <div class="absen-modal-row">
-        <div class="k">Status</div>
-        <div class="v ${isValid ? 'qr-valid' : 'qr-invalid'}">${escapeHtml(row.statusQr)}</div>
+        <div class="k">Lokasi Scan</div>
+        <div class="v">${escapeHtml(row.hasilQr || '-')}</div>
       </div>
-      <div class="absen-modal-row"><div class="k">Hasil Scan</div><div class="v">${escapeHtml(row.hasilQr || '-')}</div></div>`;
+      <div class="absen-modal-row">
+        <div class="k">Validitas</div>
+        <div class="v ${isValid ? 'qr-valid' : 'qr-invalid'}">${escapeHtml(row.statusQr || '-')}</div>
+      </div>`;
   } else {
     qrBox.innerHTML = '<div class="absen-modal-photo-empty">Absen ini tidak menggunakan QR code.</div>';
   }
