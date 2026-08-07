@@ -1913,6 +1913,9 @@ async function fetchAbsensi(nama, month, year) {
     const data = JSON.parse(rawText);
     console.log('[fetchAbsensi] Parsed data:', data);
 
+    // Token kadaluarsa / PIN direset HR -> minta login lagi, bukan diam-diam kosong
+    if (data.code === 'UNAUTHORIZED') { sesiHabis(); return []; }
+
     if (data.result === 'success') {
       absensiCache = data.data;
       return data.data;
@@ -2089,6 +2092,10 @@ async function fetchLeaderboard() {
     }
 
     if (data.result === 'success') return { ok: true, data: data.data };
+
+    // Token kadaluarsa / PIN direset HR -> minta login lagi
+    if (data.code === 'UNAUTHORIZED') { sesiHabis(); return { ok: false, data: [], sesiHabis: true }; }
+
     console.error('[fetchLeaderboard] Error dari Apps Script:', data.message);
     return { ok: false, data: [] };
   } catch (e) {
@@ -2125,7 +2132,9 @@ async function renderLeaderboard() {
   if (!result.ok) {
     top3Wrap.innerHTML = '';
     restList.innerHTML = '';
-    hintEl.textContent = '⚠️ Leaderboard belum bisa dimuat — cek endpoint getLeaderboard di Apps Script (lihat console)';
+    hintEl.textContent = result.sesiHabis
+      ? 'Sesi kamu sudah habis. Masukkan PIN lagi untuk melihat leaderboard.'
+      : 'Leaderboard belum bisa dimuat. Cek koneksi, lalu buka ulang halaman ini.';
     hintEl.style.display = 'block';
     return;
   }
