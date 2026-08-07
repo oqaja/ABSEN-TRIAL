@@ -784,6 +784,22 @@ function goPage(page) {
   window.scrollTo(0, 0);
 }
 
+// Hitung URL hr.html secara eksplisit dari folder tempat index.html berada,
+// biar gak salah resolve ke domain root kalau app dibuka tanpa trailing slash
+// di path-nya (sering kejadian pas PWA dibuka dari home screen / lewat cache SW).
+function resolveHrUrl() {
+  var path = window.location.pathname; // contoh: "/repo", "/repo/", atau "/repo/index.html"
+  var lastSegment = path.substring(path.lastIndexOf('/') + 1);
+  if (lastSegment.indexOf('.') !== -1) {
+    // ada nama file di akhir (misal index.html) -> buang, sisain foldernya
+    path = path.substring(0, path.lastIndexOf('/') + 1);
+  } else if (path.charAt(path.length - 1) !== '/') {
+    // dianggap folder tapi trailing slash-nya ilang -> tambahin
+    path += '/';
+  }
+  return window.location.origin + path + 'hr.html';
+}
+
 // ===== Nav Profil: 1x klik = ke halaman Profil, 3x klik cepat (<600ms) = ke Dashboard HR (hr.html) =====
 // Sengaja gak ada indikator visual apa pun di UI (biar HR key + token yang jadi lapisan
 // keamanan beneran, ini cuma jalan pintas biar HR gak perlu ngetik/inget URL hr.html).
@@ -800,7 +816,7 @@ function goPage(page) {
     if (tapCount >= 3) {
       tapCount = 0;
       if (navigator.vibrate) navigator.vibrate(30);
-      window.location.href = 'hr.html';
+      window.location.href = resolveHrUrl();
       return;
     }
 
