@@ -200,6 +200,8 @@
 
   /* Card leaderboard ringkas di Home, nyambung ke tab Papan */
   .action-card.purple { background: linear-gradient(150deg, #9179FF 0%, #5738C4 100%); }
+  /* Kartu menu khusus role (Kreatif / Produksi) */
+  .action-card.mint { background: linear-gradient(150deg, #00C692 0%, #007854 100%); }
   .action-card-rank {
     position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
     background: rgba(255,255,255,0.16); border: 1.5px solid rgba(255,255,255,0.3);
@@ -514,10 +516,7 @@
     <div class="card" id="gateCardRegister" style="display:none">
       <p class="info-text">HP ini belum terdaftar.<br>Pilih nama dan buat PIN kamu.</p>
       <select id="gateNamaSelect">
-        <option value="">-- Pilih Nama --</option>
-        <option>Karyo</option><option>Dimas</option><option>Oky</option>
-        <option>April</option><option>Yuli</option>
-        <option>Rayhan</option><option>Bimar</option><option>Budi</option>
+        <option value="">Memuat daftar nama…</option>
       </select>
       <input type="password" id="gatePinSetup1" placeholder="Buat PIN (4 digit)" inputmode="numeric" maxlength="4">
       <input type="password" id="gatePinSetup2" placeholder="Ulangi PIN" inputmode="numeric" maxlength="4">
@@ -574,6 +573,9 @@
       <div class="action-card-sub">Tap buat check-in, check-out, atau ijin</div>
       <div class="action-card-emoji">📋</div>
     </div>
+
+    <!-- Kartu menu khusus role — diisi otomatis oleh terapkanRoleKeUI() -->
+    <div id="roleMenuWrap"></div>
 
     <div class="action-card purple" onclick="goPage('leaderboard')">
       <div class="action-card-title">Leaderboard</div>
@@ -1059,16 +1061,99 @@ function keluarModeHR() {
   });
 })();
 
-// ===== APP GATE (wajib login/daftar dulu begitu app dibuka) =====
-// Beda dengan login di tab Absen: ini nge-gate SELURUH app (Home/Papan/Profil ikut kekunci),
-// bukan cuma alur absen. Setelah PIN benar sekali, statusnya disimpan di sessionStorage
-// (jadi gak perlu login ulang tiap pindah tab, tapi tetap wajib login lagi kalau app/tab ditutup & dibuka ulang).
+// =====================================================================
+// ===== SESI: token, nama, role =======================================
+// =====================================================================
+// PIN sekarang diverifikasi di SERVER. Yang disimpan di HP cuma token
+// hasil login (berlaku 12 jam), bukan PIN-nya. Jadi nama di dropdown
+// gak bisa lagi dipakai buat "jadi" orang lain.
+
+function getToken() { return localStorage.getItem('absensi_token') || ''; }
+function getRole()  { return localStorage.getItem('absensi_role')  || ''; }
+
+function simpanSesi(data) {
+  localStorage.setItem('absensi_token', data.token);
+  localStorage.setItem('absensi_nama', data.nama);
+  localStorage.setItem('absensi_role', data.role || '');
+  nama = data.nama;
+}
+
+function hapusSesi() {
+  localStorage.removeItem('absensi_token');
+  localStorage.removeItem('absensi_role');
+  sessionStorage.removeItem('app_gate_unlocked');
+}
+
+// Dipanggil kalau server bilang token gak berlaku lagi (kadaluarsa / PIN direset HR).
+function sesiHabis() {
+  hapusSesi();
+  absensiCache = null;
+  cekAppGate();
+}
+
+// Pembungkus fetch GET: token ikut otomatis, sesi habis ketahuan otomatis.
+async function apiGet(action, params) {
+  let url = SCRIPT_URL + '?action=' + action + '&token=' + encodeURIComponent(getToken());
+  for (const k in (params || {})) {
+    url += '&' + k + '=' + encodeURIComponent(params[k]);
+  }
+  const res = await fetch(url);
+  const data = await res.json();
+  if (data.code === 'UNAUTHORIZED') { sesiHabis(); throw new Error('Sesi habis'); }
+  return data;
+}
+
+async function apiPost(body) {
+  const res = await fetch(SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
+
+// =====================================================================
+// ===== APP GATE (wajib login/daftar dulu begitu app dibuka) ==========
+// =====================================================================
+// Nge-gate SELURUH app (Home/Papan/Profil ikut kekunci). Setelah PIN benar,
+// statusnya disimpan di sessionStorage — gak perlu login ulang tiap pindah
+// tab, tapi wajib login lagi kalau app ditutup & dibuka ulang.
+
+let daftarNamaCache = null;
+
+// Ambil daftar nama dari server buat isi dropdown (belum butuh token).
+async function muatDaftarNama() {
+  const sel = document.getElementById('gateNamaSelect');
+  try {
+    const res = await fetch(SCRIPT_URL + '?action=getKaryawan');
+    const data = await res.json();
+    if (data.result !== 'success') throw new Error(data.message);
+
+    daftarNamaCache = data.data;
+    sel.innerHTML = '<option value="">— Pilih nama —</option>';
+    data.data.forEach(k => {
+      const opt = document.createElement('option');
+      opt.value = k.nama;
+      // Nama yang sudah dipakai orang lain ditandai, biar gak salah pilih.
+      opt.textContent = k.nama + (k.terdaftar ? ' (sudah terdaftar)' : '');
+      opt.disabled = k.terdaftar;
+      sel.appendChild(opt);
+    });
+  } catch (err) {
+    sel.innerHTML = '<option value="">Gagal memuat — cek koneksi</option>';
+    document.getElementById('gateRegisterErrorBox').innerHTML =
+      '<div class="status-box status-fail">Tidak bisa menghubungi server. Cek koneksi internet, lalu buka ulang app.</div>';
+  }
+}
+
 function cekAppGate() {
   const gate = document.getElementById('appGate');
   const savedNama = localStorage.getItem('absensi_nama');
   const sudahUnlock = sessionStorage.getItem('app_gate_unlocked') === '1';
 
-  if (sudahUnlock) {
+  // Sudah login di sesi ini DAN token masih tersimpan -> lewat.
+  if (sudahUnlock && getToken()) {
     gate.classList.remove('active');
     return;
   }
@@ -1078,47 +1163,142 @@ function cekAppGate() {
   document.getElementById('gateLoginErrorBox').innerHTML = '';
 
   if (savedNama) {
-    document.getElementById('gateCardLogin').style.display = 'block';
-    document.getElementById('gateCardRegister').style.display = 'none';
-    document.getElementById('gateWelcomeText').textContent = 'Selamat datang, ' + savedNama + '! 👋';
-    document.getElementById('gatePinLogin').value = '';
+    tampilkanKartuLogin(savedNama);
   } else {
-    document.getElementById('gateCardRegister').style.display = 'block';
-    document.getElementById('gateCardLogin').style.display = 'none';
+    tampilkanKartuDaftar();
   }
 }
+
+function tampilkanKartuLogin(namaTersimpan) {
+  document.getElementById('gateCardLogin').style.display = 'block';
+  document.getElementById('gateCardRegister').style.display = 'none';
+  document.getElementById('gateWelcomeText').textContent = 'Selamat datang, ' + namaTersimpan + '! 👋';
+  document.getElementById('gatePinLogin').value = '';
+}
+
+function tampilkanKartuDaftar() {
+  document.getElementById('gateCardRegister').style.display = 'block';
+  document.getElementById('gateCardLogin').style.display = 'none';
+  if (!daftarNamaCache) muatDaftarNama();
+}
+
 function bukaGerbangApp() {
   sessionStorage.setItem('app_gate_unlocked', '1');
   document.getElementById('appGate').classList.remove('active');
+  terapkanRoleKeUI();
 }
-function gateDaftarDevice() {
+
+// --- DAFTAR: set PIN pertama kali (PIN dikirim ke server, disimpan sebagai hash) ---
+async function gateDaftarDevice() {
+  const btn = event && event.target ? event.target : null;
   const namaPilih = document.getElementById('gateNamaSelect').value;
   const pin1 = document.getElementById('gatePinSetup1').value.trim();
   const pin2 = document.getElementById('gatePinSetup2').value.trim();
   const err = document.getElementById('gateRegisterErrorBox');
   err.innerHTML = '';
+
   if (!namaPilih) { err.innerHTML = '<div class="status-box status-fail">Pilih nama dulu</div>'; return; }
   if (!/^\d{4}$/.test(pin1)) { err.innerHTML = '<div class="status-box status-fail">PIN harus 4 digit angka</div>'; return; }
   if (pin1 !== pin2) { err.innerHTML = '<div class="status-box status-fail">PIN tidak cocok</div>'; return; }
-  localStorage.setItem('absensi_nama', namaPilih);
-  localStorage.setItem('absensi_pin', pin1);
-  nama = namaPilih;
-  bukaGerbangApp();
-  renderHome();
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Mendaftarkan…'; }
+  try {
+    const data = await apiPost({ action: 'daftar', nama: namaPilih, pin: pin1 });
+    if (data.result !== 'success') {
+      err.innerHTML = '<div class="status-box status-fail">' + escapeHtml(data.message) + '</div>';
+      return;
+    }
+    simpanSesi(data);
+    bukaGerbangApp();
+    renderHome();
+  } catch (e) {
+    err.innerHTML = '<div class="status-box status-fail">Gagal menghubungi server. Cek koneksi internet.</div>';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Daftarkan HP Ini'; }
+  }
 }
-function gateVerifikasiPin() {
+
+// --- LOGIN: PIN dicek di server, dapat token baru ---
+async function gateVerifikasiPin() {
+  const btn = event && event.target ? event.target : null;
   const pinInput = document.getElementById('gatePinLogin').value.trim();
-  const savedPin = localStorage.getItem('absensi_pin');
+  const savedNama = localStorage.getItem('absensi_nama');
   const err = document.getElementById('gateLoginErrorBox');
-  if (pinInput !== savedPin) { err.innerHTML = '<div class="status-box status-fail">PIN salah</div>'; return; }
   err.innerHTML = '';
-  bukaGerbangApp();
+
+  if (!/^\d{4}$/.test(pinInput)) { err.innerHTML = '<div class="status-box status-fail">PIN harus 4 digit angka</div>'; return; }
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Memeriksa…'; }
+  try {
+    const data = await apiPost({ action: 'login', nama: savedNama, pin: pinInput });
+
+    if (data.result !== 'success') {
+      // PIN direset HR -> arahkan ke form daftar ulang
+      if (data.message === 'BELUM_DAFTAR') {
+        localStorage.removeItem('absensi_nama');
+        daftarNamaCache = null;
+        tampilkanKartuDaftar();
+        document.getElementById('gateRegisterErrorBox').innerHTML =
+          '<div class="status-box status-fail">PIN kamu sudah direset HR. Silakan pilih nama dan buat PIN baru.</div>';
+        return;
+      }
+      err.innerHTML = '<div class="status-box status-fail">' + escapeHtml(data.message) + '</div>';
+      return;
+    }
+
+    simpanSesi(data);
+    bukaGerbangApp();
+    renderHome();
+  } catch (e) {
+    err.innerHTML = '<div class="status-box status-fail">Gagal menghubungi server. Cek koneksi internet.</div>';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Masuk'; }
+  }
 }
+
+
+// =====================================================================
+// ===== MENU KHUSUS ROLE ==============================================
+// =====================================================================
+// Kartu menu role cuma muncul kalau role-nya cocok. Ini soal TAMPILAN —
+// pengamanan sebenarnya tetap di server (setiap endpoint role dicek ulang
+// pakai token), jadi menu yang disembunyikan bukan satu-satunya penghalang.
+
+const MENU_ROLE = {
+  kreatif:  { emoji: '🎨', judul: 'Report Kreatif',  sub: 'Isi dan lihat laporan tugas tim Kreatif',  file: 'kreatif.html'  },
+  produksi: { emoji: '🏭', judul: 'Report Produksi', sub: 'Isi dan lihat laporan tugas tim Produksi', file: 'produksi.html' }
+};
+
+function terapkanRoleKeUI() {
+  const wrap = document.getElementById('roleMenuWrap');
+  if (!wrap) return;
+
+  const role = getRole();
+  wrap.innerHTML = '';
+
+  // HR bisa masuk ke semua menu role; role lain cuma menunya sendiri.
+  const boleh = (role === 'hr') ? Object.keys(MENU_ROLE) : (MENU_ROLE[role] ? [role] : []);
+  if (!boleh.length) return;
+
+  boleh.forEach(r => {
+    const m = MENU_ROLE[r];
+    const el = document.createElement('div');
+    el.className = 'action-card mint';
+    el.onclick = () => { window.location.href = m.file; };
+    el.innerHTML =
+      '<div class="action-card-title">' + m.judul + '</div>' +
+      '<div class="action-card-sub">' + m.sub + '</div>' +
+      '<div class="action-card-emoji">' + m.emoji + '</div>';
+    wrap.appendChild(el);
+  });
+}
+
 
 // INIT
 window.addEventListener('DOMContentLoaded', () => {
   nama = localStorage.getItem('absensi_nama') || '';
   cekAppGate();
+  terapkanRoleKeUI();
   updateCountdownCard();
   renderHome();
   initAbsenPage();
@@ -1318,27 +1498,12 @@ function showAbsenStep(id) {
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
   document.getElementById('step' + id).classList.add('active');
 }
-function daftarDevice() {
-  const namaPilih = document.getElementById('namaSelect').value;
-  const pin1 = document.getElementById('pinSetup1').value.trim();
-  const pin2 = document.getElementById('pinSetup2').value.trim();
-  const err = document.getElementById('registerErrorBox');
-  err.innerHTML = '';
-  if (!namaPilih) { err.innerHTML = '<div class="status-box status-fail">Pilih nama dulu</div>'; return; }
-  if (!/^\d{4}$/.test(pin1)) { err.innerHTML = '<div class="status-box status-fail">PIN harus 4 digit angka</div>'; return; }
-  if (pin1 !== pin2) { err.innerHTML = '<div class="status-box status-fail">PIN tidak cocok</div>'; return; }
-  localStorage.setItem('absensi_nama', namaPilih);
-  localStorage.setItem('absensi_pin', pin1);
-  nama = namaPilih;
-  showAbsenStep(2);
-}
-function verifikasiPin() {
-  const pinInput = document.getElementById('pinLogin').value.trim();
-  const savedPin = localStorage.getItem('absensi_pin');
-  const err = document.getElementById('loginErrorBox');
-  if (pinInput !== savedPin) { err.innerHTML = '<div class="status-box status-fail">PIN salah</div>'; return; }
-  err.innerHTML = ''; showAbsenStep(2);
-}
+// Login/daftar sekarang cuma ada SATU pintu: app gate di awal app.
+// Dua fungsi ini dulu punya jalur PIN sendiri yang dicek di HP — itu sudah
+// dicabut, karena PIN wajib diverifikasi server. Kalau step lama ini
+// sempat kebuka, arahkan balik ke gate.
+function daftarDevice() { cekAppGate(); }
+function verifikasiPin() { cekAppGate(); }
 function pilihJenis(jenis, perluQr, perluKeterangan, sakitMode) {
   jenisAbsen = jenis; butuhQr = perluQr; butuhKeterangan = perluKeterangan; isSakit = sakitMode;
   screenshotBase64 = ''; keterangan = '';
@@ -1459,15 +1624,26 @@ function submitAbsensi() {
   const submitBtn = document.getElementById('submitBtn');
   if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Mengirim...'; }
   if (isSakit) document.getElementById('locationResultBox').innerHTML += '<div class="status-box status-ok" style="margin-top:8px">Mengirim data...</div>';
+  // Identitas dikirim lewat token, BUKAN lewat nama. Server yang menentukan
+  // absen ini tercatat atas nama siapa — jadi absen gak bisa dititipin.
   fetch(SCRIPT_URL, {
     method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body: JSON.stringify({ nama, jenisAbsen, keterangan, isSakit, latitude, longitude, qrResult, butuhQr,
+    body: JSON.stringify({ token: getToken(), jenisAbsen, keterangan, isSakit, latitude, longitude, qrResult, butuhQr,
       photoBase64: isSakit ? '' : photoBase64, screenshotBase64: isSakit ? screenshotBase64 : '' })
   })
   .then(res => res.json())
   .then(data => {
     if (stream) stream.getTracks().forEach(t => t.stop());
     absensiCache = null;
+
+    // Token kadaluarsa di tengah jalan -> minta PIN lagi, absen belum tercatat.
+    if (data.code === 'UNAUTHORIZED') {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '✅ Submit Absensi'; }
+      alert('Sesi kamu sudah habis. Masukkan PIN lagi, lalu ulangi absen.');
+      sesiHabis();
+      return;
+    }
+
     const statusBox = document.getElementById('finalStatus');
     if (data.result === 'success') {
       document.getElementById('finalEmoji').textContent = isSakit ? '🤒' : (butuhQr && data.qrStatus !== 'VALID') ? '⚠️' : '✅';
@@ -1503,6 +1679,7 @@ function resetAbsen() {
 function resetDevice() {
   if (!confirm('Reset HP ini? Kamu harus daftar ulang setelah ini.')) return;
   localStorage.removeItem('absensi_nama'); localStorage.removeItem('absensi_pin'); localStorage.removeItem('absensi_foto');
+  localStorage.removeItem('absensi_token'); localStorage.removeItem('absensi_role');
   sessionStorage.removeItem('app_gate_unlocked');
   nama = ''; absensiCache = null;
   goPage('absen');
@@ -1718,7 +1895,8 @@ async function fetchAbsensi(nama, month, year) {
   if (absensiCache) return absensiCache;
   if (!nama || nama === '—') return [];
   try {
-    const url = SCRIPT_URL + '?action=getAbsensi&nama=' + encodeURIComponent(nama) + '&month=' + month + '&year=' + year;
+    // nama TIDAK dikirim lagi — server ambil dari token, jadi gak bisa ngintip riwayat orang lain
+    const url = SCRIPT_URL + '?action=getAbsensi&token=' + encodeURIComponent(getToken()) + '&month=' + month + '&year=' + year;
     console.log('[fetchAbsensi] URL:', url);
 
     const res = await fetch(url, { redirect: 'follow' });
@@ -1898,7 +2076,7 @@ function hitungTotalPoin(allData) {
 // ===== LEADERBOARD =====
 async function fetchLeaderboard() {
   try {
-    const url = SCRIPT_URL + '?action=getLeaderboard';
+    const url = SCRIPT_URL + '?action=getLeaderboard&token=' + encodeURIComponent(getToken());
     const res = await fetch(url, { redirect: 'follow' });
     const rawText = await res.text();
 
