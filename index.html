@@ -395,9 +395,55 @@
   }
 
   .loading-text { text-align: center; color: var(--ink-soft); font-size: 13px; padding: 20px 0; font-weight: 600; }
+
+  /* ===== APP GATE (layar kunci PIN saat app dibuka) ===== */
+  .app-gate {
+    position: fixed; inset: 0; z-index: 500; display: none;
+    align-items: center; justify-content: center; padding: 24px;
+    background-color: var(--bg);
+    background-image: radial-gradient(var(--bg-dot) 1.2px, transparent 1.2px);
+    background-size: 18px 18px;
+  }
+  .app-gate.active { display: flex; }
+  .app-gate-inner { width: 100%; max-width: 360px; }
+  .app-gate-brand { text-align: center; margin-bottom: 18px; }
+  .app-gate-brand .emoji { font-size: 34px; display: block; }
+  .app-gate-brand .title { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--ink); margin-top: 4px; }
 </style>
 </head>
 <body>
+
+<!-- ===== APP GATE (wajib login/daftar dulu begitu app dibuka) ===== -->
+<div class="app-gate" id="appGate">
+  <div class="app-gate-inner">
+    <div class="app-gate-brand">
+      <span class="emoji">📋</span>
+      <div class="title">Absensi</div>
+    </div>
+
+    <div class="card" id="gateCardRegister" style="display:none">
+      <p class="info-text">HP ini belum terdaftar.<br>Pilih nama dan buat PIN kamu.</p>
+      <select id="gateNamaSelect">
+        <option value="">-- Pilih Nama --</option>
+        <option>Karyo</option><option>Dimas</option><option>Oky</option>
+        <option>April</option><option>Yuli</option>
+        <option>Rayhan</option><option>Bimar</option><option>Budi</option>
+      </select>
+      <input type="password" id="gatePinSetup1" placeholder="Buat PIN (4 digit)" inputmode="numeric" maxlength="4">
+      <input type="password" id="gatePinSetup2" placeholder="Ulangi PIN" inputmode="numeric" maxlength="4">
+      <div id="gateRegisterErrorBox"></div>
+      <button class="btn" onclick="gateDaftarDevice()">Daftarkan HP Ini</button>
+    </div>
+
+    <div class="card" id="gateCardLogin" style="display:none">
+      <p class="info-text" id="gateWelcomeText">Selamat datang!</p>
+      <input type="password" id="gatePinLogin" placeholder="Masukkan PIN" inputmode="numeric" maxlength="4"
+        onkeydown="if(event.key==='Enter') gateVerifikasiPin()">
+      <div id="gateLoginErrorBox"></div>
+      <button class="btn" onclick="gateVerifikasiPin()">Masuk</button>
+    </div>
+  </div>
+</div>
 
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
@@ -735,9 +781,66 @@ function goPage(page) {
   window.scrollTo(0, 0);
 }
 
+// ===== APP GATE (wajib login/daftar dulu begitu app dibuka) =====
+// Beda dengan login di tab Absen: ini nge-gate SELURUH app (Home/Papan/Profil ikut kekunci),
+// bukan cuma alur absen. Setelah PIN benar sekali, statusnya disimpan di sessionStorage
+// (jadi gak perlu login ulang tiap pindah tab, tapi tetap wajib login lagi kalau app/tab ditutup & dibuka ulang).
+function cekAppGate() {
+  const gate = document.getElementById('appGate');
+  const savedNama = localStorage.getItem('absensi_nama');
+  const sudahUnlock = sessionStorage.getItem('app_gate_unlocked') === '1';
+
+  if (sudahUnlock) {
+    gate.classList.remove('active');
+    return;
+  }
+
+  gate.classList.add('active');
+  document.getElementById('gateRegisterErrorBox').innerHTML = '';
+  document.getElementById('gateLoginErrorBox').innerHTML = '';
+
+  if (savedNama) {
+    document.getElementById('gateCardLogin').style.display = 'block';
+    document.getElementById('gateCardRegister').style.display = 'none';
+    document.getElementById('gateWelcomeText').textContent = 'Selamat datang, ' + savedNama + '! 👋';
+    document.getElementById('gatePinLogin').value = '';
+  } else {
+    document.getElementById('gateCardRegister').style.display = 'block';
+    document.getElementById('gateCardLogin').style.display = 'none';
+  }
+}
+function bukaGerbangApp() {
+  sessionStorage.setItem('app_gate_unlocked', '1');
+  document.getElementById('appGate').classList.remove('active');
+}
+function gateDaftarDevice() {
+  const namaPilih = document.getElementById('gateNamaSelect').value;
+  const pin1 = document.getElementById('gatePinSetup1').value.trim();
+  const pin2 = document.getElementById('gatePinSetup2').value.trim();
+  const err = document.getElementById('gateRegisterErrorBox');
+  err.innerHTML = '';
+  if (!namaPilih) { err.innerHTML = '<div class="status-box status-fail">Pilih nama dulu</div>'; return; }
+  if (!/^\d{4}$/.test(pin1)) { err.innerHTML = '<div class="status-box status-fail">PIN harus 4 digit angka</div>'; return; }
+  if (pin1 !== pin2) { err.innerHTML = '<div class="status-box status-fail">PIN tidak cocok</div>'; return; }
+  localStorage.setItem('absensi_nama', namaPilih);
+  localStorage.setItem('absensi_pin', pin1);
+  nama = namaPilih;
+  bukaGerbangApp();
+  renderHome();
+}
+function gateVerifikasiPin() {
+  const pinInput = document.getElementById('gatePinLogin').value.trim();
+  const savedPin = localStorage.getItem('absensi_pin');
+  const err = document.getElementById('gateLoginErrorBox');
+  if (pinInput !== savedPin) { err.innerHTML = '<div class="status-box status-fail">PIN salah</div>'; return; }
+  err.innerHTML = '';
+  bukaGerbangApp();
+}
+
 // INIT
 window.addEventListener('DOMContentLoaded', () => {
   nama = localStorage.getItem('absensi_nama') || '';
+  cekAppGate();
   updateCountdownCard();
   renderHome();
   initAbsenPage();
@@ -913,6 +1016,16 @@ async function renderHomeCalendar() {
 function initAbsenPage() {
   const savedNama = localStorage.getItem('absensi_nama');
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+
+  // Kalau app-level gate udah unlock (PIN sudah diverifikasi pas buka app),
+  // gak perlu minta PIN lagi di tab Absen — langsung ke pemilihan jenis absen.
+  const sudahUnlock = sessionStorage.getItem('app_gate_unlocked') === '1';
+  if (savedNama && sudahUnlock) {
+    nama = savedNama;
+    showAbsenStep(2);
+    return;
+  }
+
   if (savedNama) {
     nama = savedNama;
     document.getElementById('welcomeText').textContent = 'Selamat datang, ' + savedNama + '! 👋';
@@ -1112,8 +1225,10 @@ function resetAbsen() {
 function resetDevice() {
   if (!confirm('Reset HP ini? Kamu harus daftar ulang setelah ini.')) return;
   localStorage.removeItem('absensi_nama'); localStorage.removeItem('absensi_pin'); localStorage.removeItem('absensi_foto');
+  sessionStorage.removeItem('app_gate_unlocked');
   nama = ''; absensiCache = null;
   goPage('absen');
+  cekAppGate();
 }
 
 // ===== PROFIL (+ RIWAYAT ABSENSI) =====
