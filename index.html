@@ -543,7 +543,7 @@
   <div class="nav-item" id="nav-leaderboard" onclick="goPage('leaderboard')">
     <span class="nav-icon">🏆</span><span class="nav-label">Papan</span>
   </div>
-  <div class="nav-item" id="nav-profil">
+  <div class="nav-item" id="nav-profil" onclick="goPage('profil')">
     <span class="nav-icon">👤</span><span class="nav-label">Profil</span>
   </div>
 </nav>
@@ -775,13 +775,16 @@
 
     <div id="profilLoadingBox" class="loading-text" style="display:none">Memuat data...</div>
 
+    <div class="section-label" style="margin-top:18px">Lainnya</div>
+    <button class="jenis-btn" onclick="masukModeHR()">🔐 Mode HR</button>
+
     <div class="profil-reset">
       <button onclick="resetDevice()">🔄 Ganti akun / Reset HP</button>
     </div>
   </div>
 </div>
 
-<!-- ===== MODE HR (masuk lewat triple-tap ikon Profil) ===== -->
+<!-- ===== MODE HR (masuk lewat tombol "Mode HR" di Profil) ===== -->
 <div class="page" id="page-hr-root">
 
   <!-- GATE: masukkan HR key -->
