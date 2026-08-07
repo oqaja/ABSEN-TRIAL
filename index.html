@@ -1017,8 +1017,9 @@ function masukModeHR() {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   window.scrollTo(0, 0);
 
-  const savedToken = localStorage.getItem('hr_token');
-  if (savedToken) {
+  // Akun ber-role "hr" langsung masuk; yang lain tetap lewat gerbang HR key.
+  // Server tetap memeriksa ulang tokennya di tiap permintaan data.
+  if (tokenHR()) {
     hrGoPage('home');
     hrLoadToday();
     hrLoadRekap();
@@ -2276,18 +2277,33 @@ function hrLogout() {
   hrGoPage('gate');
 }
 
-// Dipanggil tiap kali server bilang token invalid/expired: bersihin token & balik ke gate,
-// biar HR gak lihat data basi dan harus login ulang.
+// Dipanggil tiap kali server bilang token invalid/expired.
 function hrHandleUnauthorized(errBox) {
+  // Masuk lewat akun ber-role hr: yang habis itu sesi utama, jadi seluruh
+  // app perlu login ulang — bukan cuma Mode HR.
+  if (getRole() === 'hr') {
+    errBox.innerHTML = '<div class="status-box status-fail">Sesi kamu sudah habis. Masukkan PIN lagi.</div>';
+    setTimeout(() => { keluarModeHR(); sesiHabis(); }, 900);
+    return;
+  }
+  // Masuk lewat HR key: cukup ulangi login HR.
   localStorage.removeItem('hr_token');
   errBox.innerHTML = '<div class="status-box status-fail">Sesi HR berakhir. Silakan login ulang.</div>';
   setTimeout(() => hrGoPage('gate'), 900);
 }
 
 // ===== FETCH HELPER =====
+// Ada dua jalan masuk ke Mode HR:
+//   1. Login biasa dengan akun ber-role "hr" -> token utama sudah cukup
+//   2. Login lewat HR key (buat yang tidak punya akun role hr) -> pakai hr_token
+// Yang pertama didahulukan supaya HR tidak perlu login dua kali.
+function tokenHR() {
+  if (getRole() === 'hr' && getToken()) return getToken();
+  return localStorage.getItem('hr_token') || '';
+}
+
 async function hrFetchRekap(month, year) {
-  const token = localStorage.getItem('hr_token') || '';
-  const url = SCRIPT_URL + '?action=getRekapHR&token=' + encodeURIComponent(token) + '&month=' + month + '&year=' + year;
+  const url = SCRIPT_URL + '?action=getRekapHR&token=' + encodeURIComponent(tokenHR()) + '&month=' + month + '&year=' + year;
   const res = await fetch(url, { redirect: 'follow' });
   const rawText = await res.text();
   if (rawText.trim().startsWith('<')) {
@@ -2312,7 +2328,7 @@ async function hrLoadToday() {
     loading.style.display = 'none';
 
     if (data.result !== 'success') {
-      if (data.message === 'Unauthorized') {
+      if (data.code === 'UNAUTHORIZED' || data.message === 'Unauthorized') {
         hrHandleUnauthorized(errBox);
       } else {
         errBox.innerHTML = '<div class="status-box status-fail">⚠️ ' + escapeHtml(data.message || 'Error') + '</div>';
@@ -2419,7 +2435,7 @@ async function hrLoadRekap() {
     listLoadingBox.style.display = 'none';
 
     if (data.result !== 'success') {
-      if (data.message === 'Unauthorized') {
+      if (data.code === 'UNAUTHORIZED' || data.message === 'Unauthorized') {
         hrHandleUnauthorized(listErrorBox);
       } else {
         listErrorBox.innerHTML = '<div class="status-box status-fail">⚠️ ' + escapeHtml(data.message || 'Error') + '</div>';
