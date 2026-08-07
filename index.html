@@ -396,6 +396,96 @@
 
   .loading-text { text-align: center; color: var(--ink-soft); font-size: 13px; padding: 20px 0; font-weight: 600; }
 
+  /* ===== MODE HR (nested di dalam #page-hr-root) ===== */
+  #page-hr-root { padding: 32px 16px 18px; }
+  #page-hr-root .card { margin-bottom: 12px; }
+  #page-hr-root .card-title { font-size: 15px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; font-family: var(--font-display); color: var(--ink); }
+  #page-hr-root .card-title .muted { font-weight: 600; font-size: 12px; color: var(--ink-soft); margin-left: auto; }
+
+  .hr-top-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .hr-top-bar h1 { font-size: 19px; font-weight: 800; flex: 1; font-family: var(--font-display); color: var(--ink); }
+  .hr-back-btn {
+    width: 36px; height: 36px; border-radius: 50%; background: var(--surface);
+    border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px; flex-shrink: 0;
+  }
+  .hr-logout-btn, .hr-exit-btn { font-size: 12px; color: var(--ink-soft); background: none; border: none; cursor: pointer; font-family: var(--font-body); font-weight: 700; }
+  .hr-exit-btn { color: var(--mint-deep); }
+
+  .hr-filter-row { display: flex; gap: 8px; }
+  .hr-filter-row select, .hr-filter-row input { margin-bottom: 0; }
+  .hr-filter-tanggal-row { margin-top: 10px; }
+  .hr-filter-hint { font-size: 11.5px; color: var(--ink-soft); margin: -6px 0 10px; font-weight: 500; }
+
+  .hr-emp-item { display: flex; align-items: center; gap: 12px; padding: 12px 4px; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .hr-emp-item:last-child { border-bottom: none; }
+  .hr-emp-avatar {
+    width: 38px; height: 38px; border-radius: 50%; background: var(--surface-2);
+    display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800;
+    color: var(--mint-deep); flex-shrink: 0; border: 1.5px solid var(--border); font-family: var(--font-display);
+  }
+  .hr-emp-info { flex: 1; min-width: 0; }
+  .hr-emp-nama { font-size: 14.5px; font-weight: 700; color: var(--ink); }
+  .hr-emp-stats { font-size: 12px; color: var(--ink-soft); margin-top: 3px; display: flex; gap: 8px; flex-wrap: wrap; font-weight: 600; }
+  .hr-emp-stats span.warn { color: var(--danger-text); font-weight: 700; }
+  .hr-emp-stats span.info { color: var(--purple-text); font-weight: 700; }
+  .hr-emp-stats span.ok { color: var(--mint-text); font-weight: 700; }
+  .hr-emp-arrow { color: var(--ink-faint); font-size: 18px; flex-shrink: 0; }
+
+  .riwayat-dinas-badge { font-size: 10px; font-weight: 800; color: var(--purple-text); background: var(--purple-ink); padding: 2px 7px; border-radius: 6px; }
+  .riwayat-item.clickable { cursor: pointer; }
+  .riwayat-item.clickable:active { opacity: 0.7; }
+  .riwayat-item-hint { font-size: 11px; color: var(--mint-deep); margin-top: 4px; font-weight: 700; }
+
+  .hr-fab-wa {
+    position: fixed; bottom: calc(var(--nav-h) + 32px); right: 20px; width: 56px; height: 56px;
+    border-radius: 50%; background: #25D366; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25); cursor: pointer; z-index: 99; border: none;
+  }
+  .hr-fab-wa:active { transform: scale(0.94); }
+  .hr-fab-wa svg { width: 26px; height: 26px; fill: #fff; }
+
+  .hr-report-textarea {
+    width: 100%; min-height: 340px; padding: 14px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border); background: var(--surface-2); color: var(--ink);
+    font-family: var(--font-body); font-size: 14px; line-height: 1.6; resize: vertical;
+    outline: none; margin-bottom: 12px; white-space: pre-wrap;
+  }
+  .hr-report-textarea:focus { border-color: var(--mint); }
+  .hr-report-actions { display: flex; gap: 8px; }
+  .hr-report-actions .btn { margin-top: 0; }
+  .hr-copy-toast { text-align: center; font-size: 12px; color: var(--mint-deep); margin-top: 8px; height: 16px; font-weight: 700; }
+
+  .hr-modal-backdrop {
+    position: fixed; inset: 0; background: rgba(20,19,17,0.55);
+    display: none; align-items: flex-end; justify-content: center; z-index: 1000;
+  }
+  .hr-modal-backdrop.active { display: flex; }
+  .hr-modal {
+    background: var(--surface); width: 100%; max-width: 480px;
+    border-radius: 24px 24px 0 0; padding: 18px 18px 24px;
+    max-height: 88vh; overflow-y: auto; border: 1px solid var(--border); border-bottom: none;
+  }
+  .hr-modal-top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .hr-modal-title { font-size: 16px; font-weight: 800; flex: 1; font-family: var(--font-display); color: var(--ink); }
+  .hr-modal-close {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--surface-2);
+    border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 15px; flex-shrink: 0; color: var(--ink);
+  }
+  .hr-modal-section { margin-bottom: 16px; }
+  .hr-modal-label { font-size: 11px; font-weight: 800; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+  .hr-modal-photo { width: 100%; border-radius: var(--radius-sm); background: var(--surface-2); display: block; max-height: 320px; object-fit: cover; }
+  .hr-modal-photo-empty { padding: 24px; text-align: center; color: var(--ink-soft); font-size: 13px; background: var(--surface-2); border-radius: var(--radius-sm); font-weight: 600; }
+  .hr-modal-link { display: inline-block; margin-top: 8px; font-size: 13px; color: var(--mint-deep); font-weight: 700; text-decoration: none; }
+  .hr-modal-map { width: 100%; height: 200px; border: 0; border-radius: var(--radius-sm); margin-top: 10px; display: block; background: var(--surface-2); }
+  .hr-modal-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+  .hr-modal-row:last-child { border-bottom: none; }
+  .hr-modal-row .k { color: var(--ink-soft); }
+  .hr-modal-row .v { font-weight: 700; text-align: right; color: var(--ink); }
+  .hr-qr-valid { color: var(--mint-text); }
+  .hr-qr-invalid { color: var(--danger-text); }
+
   /* ===== APP GATE (layar kunci PIN saat app dibuka) ===== */
   .app-gate {
     position: fixed; inset: 0; z-index: 500; display: none;
@@ -691,6 +781,135 @@
   </div>
 </div>
 
+<!-- ===== MODE HR (masuk lewat triple-tap ikon Profil) ===== -->
+<div class="page" id="page-hr-root">
+
+  <!-- GATE: masukkan HR key -->
+  <div class="page active" id="page-hr-gate">
+    <div class="hr-top-bar" style="margin-bottom:4px">
+      <div class="hr-back-btn" onclick="keluarModeHR()">←</div>
+      <h1></h1>
+    </div>
+    <div style="text-align:center; font-size:38px; margin-bottom:8px">🔐</div>
+    <div style="text-align:center; font-size:19px; font-weight:800; margin-bottom:4px; font-family:var(--font-display); color:var(--ink)">Dashboard HR</div>
+    <p class="info-text">Masukkan HR Key untuk melihat rekap absensi semua karyawan</p>
+    <div class="card">
+      <input type="password" id="hrKeyInput" placeholder="HR Key">
+      <div id="hrGateErrorBox"></div>
+      <button class="btn" onclick="hrCekKey()">Masuk</button>
+    </div>
+  </div>
+
+  <!-- HOME HR: card Hari Ini + Rekap Bulanan -->
+  <div class="page" id="page-hr-home">
+    <div class="hr-top-bar">
+      <h1>Dashboard HR</h1>
+      <button class="hr-exit-btn" onclick="keluarModeHR()">← Kembali</button>
+      <button class="hr-logout-btn" onclick="hrLogout()">Keluar</button>
+    </div>
+
+    <div class="card" id="hrCardHariIni">
+      <div class="card-title">📅 Hari Ini <span class="muted" id="hrHariIniLabel"></span></div>
+      <div id="hrHariIniLoading" class="loading-text">Memuat data...</div>
+      <div id="hrHariIniErrorBox"></div>
+      <div id="hrHariIniList"></div>
+    </div>
+
+    <div class="card" id="hrCardBulanan">
+      <div class="card-title">🗓️ Rekap Bulanan</div>
+      <div class="hr-filter-row">
+        <select id="hrFilterBulan"></select>
+        <input type="number" id="hrFilterTahun" min="2020" max="2100">
+      </div>
+      <div class="hr-filter-tanggal-row">
+        <input type="date" id="hrFilterTanggal">
+        <div class="hr-filter-hint">Opsional: pilih tanggal tertentu untuk mempersempit hasil ke 1 hari itu saja</div>
+      </div>
+      <button class="btn" onclick="hrLoadRekap()">Tampilkan</button>
+      <button class="btn btn-secondary" id="hrResetTanggalBtn" onclick="hrResetFilterTanggal()" style="display:none">Hapus Filter Tanggal</button>
+
+      <div id="hrListLoadingBox" class="loading-text" style="display:none">Memuat data...</div>
+      <div id="hrListErrorBox"></div>
+      <div id="hrEmpList" style="margin-top:6px"></div>
+    </div>
+
+    <button class="hr-fab-wa" id="hrFabWa" onclick="hrOpenLaporanWA()" title="Kirim laporan absensi ke WhatsApp">
+      <svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0012.04 2zm5.8 14.14c-.24.68-1.4 1.32-1.93 1.4-.5.08-1.11.11-1.79-.11a16.4 16.4 0 01-1.6-.59c-2.82-1.22-4.66-4.06-4.8-4.25-.14-.19-1.15-1.53-1.15-2.92 0-1.39.73-2.07.99-2.36.26-.28.57-.35.76-.35.19 0 .38 0 .55.01.18.01.42-.07.65.5.24.58.81 2 .88 2.15.07.14.12.31.02.5-.1.19-.15.31-.29.48-.14.17-.3.37-.43.5-.14.14-.29.29-.13.57.17.29.75 1.24 1.61 2 1.11.99 2.04 1.3 2.33 1.44.29.15.46.13.63-.07.17-.2.72-.83.91-1.12.19-.29.38-.24.63-.14.26.1 1.65.78 1.94.92.29.14.48.21.55.33.07.12.07.68-.17 1.35z"/></svg>
+    </button>
+  </div>
+
+  <!-- DETAIL KARYAWAN -->
+  <div class="page" id="page-hr-detail">
+    <div class="hr-top-bar">
+      <div class="hr-back-btn" onclick="hrBackToHome()">←</div>
+      <h1 id="hrDetailNama">—</h1>
+    </div>
+    <div id="hrDetailPeriodeLabel" class="info-text" style="margin-top:-8px"></div>
+
+    <div class="stat-grid-4">
+      <div class="stat-item s-hadir"><div class="s-num" id="hrDStatHadir">—</div><div class="s-label">Hadir</div></div>
+      <div class="stat-item s-sakit"><div class="s-num" id="hrDStatSakit">—</div><div class="s-label">Sakit</div></div>
+      <div class="stat-item s-ijin"><div class="s-num" id="hrDStatIjin">—</div><div class="s-label">Ijin</div></div>
+      <div class="stat-item s-lambat"><div class="s-num" id="hrDStatLambat">—</div><div class="s-label">Terlambat</div></div>
+    </div>
+
+    <div id="hrDetailRiwayat"></div>
+  </div>
+
+  <!-- LAPORAN WA (preview + kirim) -->
+  <div class="page" id="page-hr-report">
+    <div class="hr-top-bar">
+      <div class="hr-back-btn" onclick="hrBackToHomeFromReport()">←</div>
+      <h1>Laporan ke WA</h1>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 Preview Laporan <span class="muted">Bisa diedit dulu</span></div>
+      <textarea class="hr-report-textarea" id="hrLaporanText"></textarea>
+      <div class="hr-report-actions">
+        <button class="btn btn-secondary" onclick="hrSalinLaporan()">Salin Teks</button>
+        <button class="btn" onclick="hrKirimKeWA()">Kirim ke WhatsApp</button>
+      </div>
+      <div class="hr-copy-toast" id="hrCopyToast"></div>
+    </div>
+  </div>
+
+  <!-- MODAL DETAIL ABSEN (foto, lokasi, status QR) -->
+  <div class="hr-modal-backdrop" id="hrAbsenModalBackdrop" onclick="if(event.target===this) hrCloseAbsenDetail()">
+    <div class="hr-modal">
+      <div class="hr-modal-top">
+        <div class="hr-modal-title" id="hrAmTitle">Detail Absen</div>
+        <div class="hr-modal-close" onclick="hrCloseAbsenDetail()">✕</div>
+      </div>
+
+      <div class="hr-modal-section">
+        <div class="hr-modal-label">📸 Foto Selfie</div>
+        <div id="hrAmFotoBox"></div>
+      </div>
+
+      <div class="hr-modal-section">
+        <div class="hr-modal-label">📍 Lokasi GPS Karyawan</div>
+        <div id="hrAmLokasiBox"></div>
+      </div>
+
+      <div class="hr-modal-section">
+        <div class="hr-modal-label">🔳 Lokasi QR Code</div>
+        <div id="hrAmQrBox"></div>
+      </div>
+
+      <div class="hr-modal-section" id="hrAmScreenshotSection" style="display:none">
+        <div class="hr-modal-label">🩺 Screenshot Bukti Sakit</div>
+        <div id="hrAmScreenshotBox"></div>
+      </div>
+
+      <div class="hr-modal-section" id="hrAmKeteranganSection" style="display:none">
+        <div class="hr-modal-label">💬 Keterangan</div>
+        <div id="hrAmKeteranganBox" style="font-size:13.5px; color: var(--ink)"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
 <script>
 // URL dasar Apps Script (TANPA query string di sini, query ditambahkan saat fetch)
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxDjfUyqGAaSfJxBHZ2ULgXyttVSgTJFBt9D8KF6m-wvbcNEzEbol9DbtzzPoxMXP79/exec';
@@ -784,25 +1003,33 @@ function goPage(page) {
   window.scrollTo(0, 0);
 }
 
-// Hitung URL hr.html secara eksplisit dari folder tempat index.html berada,
-// biar gak salah resolve ke domain root kalau app dibuka tanpa trailing slash
-// di path-nya (sering kejadian pas PWA dibuka dari home screen / lewat cache SW).
-function resolveHrUrl() {
-  var path = window.location.pathname; // contoh: "/repo", "/repo/", atau "/repo/index.html"
-  var lastSegment = path.substring(path.lastIndexOf('/') + 1);
-  if (lastSegment.indexOf('.') !== -1) {
-    // ada nama file di akhir (misal index.html) -> buang, sisain foldernya
-    path = path.substring(0, path.lastIndexOf('/') + 1);
-  } else if (path.charAt(path.length - 1) !== '/') {
-    // dianggap folder tapi trailing slash-nya ilang -> tambahin
-    path += '/';
+// Masuk ke "Mode HR" DI DALAM app ini (bukan pindah ke file hr.html lagi).
+// HR key + token dari server tetap jadi lapisan keamanan beneran; ini cuma jalan pintas.
+function masukModeHR() {
+  hrEnsureInit();
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-hr-root').classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  window.scrollTo(0, 0);
+
+  const savedToken = localStorage.getItem('hr_token');
+  if (savedToken) {
+    hrGoPage('home');
+    hrLoadToday();
+    hrLoadRekap();
+  } else {
+    hrGoPage('gate');
   }
-  return window.location.origin + path + 'hr.html';
 }
 
-// ===== Nav Profil: 1x klik = ke halaman Profil, 3x klik cepat (<600ms) = ke Dashboard HR (hr.html) =====
+// Keluar dari Mode HR, balik ke tab Profil biasa
+function keluarModeHR() {
+  goPage('profil');
+}
+
+// ===== Nav Profil: 1x klik = ke halaman Profil, 3x klik cepat (<600ms) = masuk Mode HR =====
 // Sengaja gak ada indikator visual apa pun di UI (biar HR key + token yang jadi lapisan
-// keamanan beneran, ini cuma jalan pintas biar HR gak perlu ngetik/inget URL hr.html).
+// keamanan beneran, ini cuma jalan pintas biar HR gak perlu ngetik/inget URL terpisah).
 (function setupNavProfilTripleTap() {
   const el = document.getElementById('nav-profil');
   const TAP_WINDOW_MS = 600;
@@ -816,7 +1043,7 @@ function resolveHrUrl() {
     if (tapCount >= 3) {
       tapCount = 0;
       if (navigator.vibrate) navigator.vibrate(30);
-      window.location.href = resolveHrUrl();
+      masukModeHR();
       return;
     }
 
@@ -1769,6 +1996,577 @@ function gantiProfilFoto(event) {
     document.getElementById('profilFotoEl').innerHTML = '<img src="' + e.target.result + '">';
   };
   reader.readAsDataURL(file);
+}
+
+// =====================================================================
+// ===== MODE HR — dulunya file terpisah hr.html, sekarang jadi mode  ====
+// ===== di dalam Profil (masuk lewat triple-tap ikon Profil).        ====
+// SCRIPT_URL, JENIS_ICON, isLambat(), escapeHtml() PAKAI yang sudah  ====
+// dideklarasikan di atas (di bagian app absensi), sengaja gak diulang.====
+// =====================================================================
+
+const HR_BULAN_NAMES = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const HR_DAY_NAMES = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+
+let hrInitialized = false;
+let hrRekapCache = [];
+let hrTodayCache = [];
+let hrSelectedNama = '';
+let hrSelectedMonth = 0, hrSelectedYear = 0, hrSelectedTanggal = null; // null = sebulan penuh, angka = 1 hari
+let hrDetailFromToday = false;
+let hrDetailRowsFlat = []; // row absensi lengkap (foto/lokasi/QR) yang sedang tampil di halaman Detail
+
+// Isi dropdown bulan/tahun + label "Hari Ini" sekali aja, saat pertama kali Mode HR dibuka
+function hrEnsureInit() {
+  if (hrInitialized) return;
+  hrInitialized = true;
+
+  const now = new Date();
+  const filterBulan = document.getElementById('hrFilterBulan');
+  HR_BULAN_NAMES.forEach((b, i) => {
+    const opt = document.createElement('option');
+    opt.value = i + 1; opt.textContent = b;
+    if (i === now.getMonth()) opt.selected = true;
+    filterBulan.appendChild(opt);
+  });
+  document.getElementById('hrFilterTahun').value = now.getFullYear();
+
+  document.getElementById('hrHariIniLabel').textContent =
+    HR_DAY_NAMES[now.getDay()] + ', ' + now.getDate() + ' ' + HR_BULAN_NAMES[now.getMonth()] + ' ' + now.getFullYear();
+}
+
+function hrGoPage(id) {
+  document.querySelectorAll('#page-hr-root .page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-hr-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ===== GATE =====
+async function hrCekKey() {
+  const key = document.getElementById('hrKeyInput').value.trim();
+  const err = document.getElementById('hrGateErrorBox');
+  const btn = document.querySelector('#page-hr-gate .btn');
+  if (!key) { err.innerHTML = '<div class="status-box status-fail">HR Key wajib diisi</div>'; return; }
+  err.innerHTML = '';
+  btn.disabled = true;
+  btn.textContent = 'Memeriksa...';
+
+  try {
+    // Key cuma dikirim SEKALI di sini, lewat POST body (bukan nempel di URL).
+    // Kalau cocok, server balikin token sementara yang dipakai buat semua request selanjutnya.
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'hrLogin', key: key })
+    });
+    const rawText = await res.text();
+    if (rawText.trim().startsWith('<')) throw new Error('HTML_RESPONSE');
+    const data = JSON.parse(rawText);
+
+    if (data.result !== 'success' || !data.token) {
+      err.innerHTML = '<div class="status-box status-fail">HR Key salah.</div>';
+      return;
+    }
+
+    localStorage.setItem('hr_token', data.token);
+    document.getElementById('hrKeyInput').value = '';
+    hrGoPage('home');
+    hrLoadToday();
+    hrLoadRekap();
+  } catch (e) {
+    err.innerHTML = '<div class="status-box status-fail">⚠️ Gagal menghubungi server. Coba lagi.</div>';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Masuk';
+  }
+}
+
+function hrLogout() {
+  localStorage.removeItem('hr_token');
+  document.getElementById('hrKeyInput').value = '';
+  hrGoPage('gate');
+}
+
+// Dipanggil tiap kali server bilang token invalid/expired: bersihin token & balik ke gate,
+// biar HR gak lihat data basi dan harus login ulang.
+function hrHandleUnauthorized(errBox) {
+  localStorage.removeItem('hr_token');
+  errBox.innerHTML = '<div class="status-box status-fail">Sesi HR berakhir. Silakan login ulang.</div>';
+  setTimeout(() => hrGoPage('gate'), 900);
+}
+
+// ===== FETCH HELPER =====
+async function hrFetchRekap(month, year) {
+  const token = localStorage.getItem('hr_token') || '';
+  const url = SCRIPT_URL + '?action=getRekapHR&token=' + encodeURIComponent(token) + '&month=' + month + '&year=' + year;
+  const res = await fetch(url, { redirect: 'follow' });
+  const rawText = await res.text();
+  if (rawText.trim().startsWith('<')) {
+    throw new Error('HTML_RESPONSE');
+  }
+  return JSON.parse(rawText);
+}
+
+// ===== CARD: HARI INI =====
+async function hrLoadToday() {
+  const now = new Date();
+  const todayDate = now.getDate();
+  const loading = document.getElementById('hrHariIniLoading');
+  const errBox = document.getElementById('hrHariIniErrorBox');
+  const list = document.getElementById('hrHariIniList');
+  loading.style.display = 'block';
+  errBox.innerHTML = '';
+  list.innerHTML = '';
+
+  try {
+    const data = await hrFetchRekap(now.getMonth() + 1, now.getFullYear());
+    loading.style.display = 'none';
+
+    if (data.result !== 'success') {
+      if (data.message === 'Unauthorized') {
+        hrHandleUnauthorized(errBox);
+      } else {
+        errBox.innerHTML = '<div class="status-box status-fail">⚠️ ' + escapeHtml(data.message || 'Error') + '</div>';
+      }
+      return;
+    }
+
+    hrTodayCache = data.data.map(emp => ({
+      nama: emp.nama,
+      absensi: emp.absensi.filter(a => a.tanggal === todayDate)
+    }));
+    hrRenderHariIni();
+  } catch (e) {
+    loading.style.display = 'none';
+    errBox.innerHTML = '<div class="status-box status-fail">⚠️ Gagal memuat data hari ini.</div>';
+  }
+}
+
+function hrStatusHariIni(absensiHariIni) {
+  const hasMasuk = absensiHariIni.some(r => r.jenisAbsen === 'Absen Masuk');
+  const hasDinas = absensiHariIni.some(r => r.jenisAbsen === 'Dinas Lapangan dari Rumah');
+  const hasSakit = absensiHariIni.some(r => r.jenisAbsen === 'Sakit');
+  const hasIjinRumah = absensiHariIni.some(r => r.jenisAbsen === 'Ijin dari Rumah');
+  const hasIjinKantor = absensiHariIni.some(r => r.jenisAbsen === 'Ijin dari Kantor');
+  const masukRow = absensiHariIni.find(r => r.jenisAbsen === 'Absen Masuk');
+
+  if (hasMasuk) {
+    const jam = String(masukRow.jam).padStart(2, '0') + ':' + String(masukRow.menit).padStart(2, '0');
+    const telatRaw = isLambat(masukRow.jam, masukRow.menit);
+    // Kalau sebelumnya sudah "Ijin dari Rumah", masuk telat TIDAK dianggap terlambat
+    if (telatRaw && hasIjinRumah) {
+      return { cls: 'info', text: 'Ijin, masuk ' + jam };
+    }
+    return { cls: telatRaw ? 'warn' : 'ok', text: (telatRaw ? 'Telat, masuk ' : 'Hadir ') + jam };
+  }
+  if (hasDinas) return { cls: 'info', text: 'Dinas Lapangan (tanpa Absen Masuk)' };
+  if (hasSakit) return { cls: 'warn', text: 'Sakit' };
+  if (hasIjinRumah || hasIjinKantor) return { cls: 'info', text: 'Ijin' };
+  return { cls: 'warn', text: 'Belum absen' };
+}
+
+function hrRenderHariIni() {
+  const container = document.getElementById('hrHariIniList');
+  if (!hrTodayCache.length) {
+    container.innerHTML = '<div class="riwayat-empty">Tidak ada data karyawan.</div>';
+    return;
+  }
+  const sorted = [...hrTodayCache].sort((a, b) => a.nama.localeCompare(b.nama));
+  container.innerHTML = sorted.map(emp => {
+    const st = hrStatusHariIni(emp.absensi);
+    const initial = emp.nama.charAt(0).toUpperCase();
+    return `<div class="hr-emp-item" onclick="hrOpenDetailFromToday('${escapeHtml(emp.nama)}')">
+      <div class="hr-emp-avatar">${initial}</div>
+      <div class="hr-emp-info">
+        <div class="hr-emp-nama">${escapeHtml(emp.nama)}</div>
+        <div class="hr-emp-stats"><span class="${st.cls}">${st.text}</span></div>
+      </div>
+      <div class="hr-emp-arrow">›</div>
+    </div>`;
+  }).join('');
+}
+
+function hrOpenDetailFromToday(nama) {
+  hrDetailFromToday = true;
+  const now = new Date();
+  const emp = hrTodayCache.find(e => e.nama === nama);
+  hrShowDetail(nama, emp ? emp.absensi : [], now.getMonth() + 1, now.getFullYear(), now.getDate());
+}
+
+// ===== CARD: REKAP BULANAN =====
+function hrResetFilterTanggal() {
+  document.getElementById('hrFilterTanggal').value = '';
+  document.getElementById('hrResetTanggalBtn').style.display = 'none';
+  hrLoadRekap();
+}
+
+async function hrLoadRekap() {
+  const tanggalInput = document.getElementById('hrFilterTanggal').value; // format yyyy-mm-dd atau ''
+  let month, year, tanggalFilter = null;
+
+  if (tanggalInput) {
+    const parts = tanggalInput.split('-');
+    year = parseInt(parts[0]);
+    month = parseInt(parts[1]);
+    tanggalFilter = parseInt(parts[2]);
+    document.getElementById('hrResetTanggalBtn').style.display = 'block';
+  } else {
+    month = parseInt(document.getElementById('hrFilterBulan').value);
+    year = parseInt(document.getElementById('hrFilterTahun').value);
+    document.getElementById('hrResetTanggalBtn').style.display = 'none';
+  }
+
+  hrSelectedMonth = month; hrSelectedYear = year; hrSelectedTanggal = tanggalFilter;
+
+  const listLoadingBox = document.getElementById('hrListLoadingBox');
+  const listErrorBox = document.getElementById('hrListErrorBox');
+  const empList = document.getElementById('hrEmpList');
+  listLoadingBox.style.display = 'block';
+  listErrorBox.innerHTML = '';
+  empList.innerHTML = '';
+
+  try {
+    const data = await hrFetchRekap(month, year);
+    listLoadingBox.style.display = 'none';
+
+    if (data.result !== 'success') {
+      if (data.message === 'Unauthorized') {
+        hrHandleUnauthorized(listErrorBox);
+      } else {
+        listErrorBox.innerHTML = '<div class="status-box status-fail">⚠️ ' + escapeHtml(data.message || 'Error') + '</div>';
+      }
+      return;
+    }
+
+    hrRekapCache = data.data.map(emp => ({
+      nama: emp.nama,
+      absensi: tanggalFilter ? emp.absensi.filter(a => a.tanggal === tanggalFilter) : emp.absensi
+    }));
+    hrRenderEmpList();
+  } catch (e) {
+    listLoadingBox.style.display = 'none';
+    listErrorBox.innerHTML = '<div class="status-box status-fail">⚠️ Gagal koneksi ke server.</div>';
+  }
+}
+
+function hrHitungStat(absensi) {
+  const hadirDates = new Set(), sakitDates = new Set(), ijinDates = new Set(), lambatDates = new Set();
+  absensi.forEach(row => {
+    const tgl = row.tanggal, jenis = row.jenisAbsen, jam = row.jam, menit = row.menit;
+    if (jenis === 'Absen Masuk' || jenis === 'Dinas Lapangan dari Rumah') {
+      hadirDates.add(tgl);
+      if (jenis === 'Absen Masuk' && isLambat(jam, menit)) lambatDates.add(tgl);
+    } else if (jenis === 'Sakit') sakitDates.add(tgl);
+    else if (jenis === 'Ijin dari Rumah' || jenis === 'Ijin dari Kantor') ijinDates.add(tgl);
+  });
+  return { hadir: hadirDates.size, sakit: sakitDates.size, ijin: ijinDates.size, lambat: lambatDates.size };
+}
+
+function hrRenderEmpList() {
+  const container = document.getElementById('hrEmpList');
+  if (!hrRekapCache.length) {
+    container.innerHTML = '<div class="riwayat-empty">Tidak ada data karyawan.</div>';
+    return;
+  }
+  const sorted = [...hrRekapCache].sort((a, b) => a.nama.localeCompare(b.nama));
+  container.innerHTML = sorted.map(emp => {
+    const stat = hrHitungStat(emp.absensi);
+    const initial = emp.nama.charAt(0).toUpperCase();
+    const kosongTag = stat.hadir === 0 && stat.sakit === 0 && stat.ijin === 0
+      ? '<span class="warn">Tidak ada absen</span>' : '';
+    return `<div class="hr-emp-item" onclick="hrOpenDetailFromRekap('${escapeHtml(emp.nama)}')">
+      <div class="hr-emp-avatar">${initial}</div>
+      <div class="hr-emp-info">
+        <div class="hr-emp-nama">${escapeHtml(emp.nama)}</div>
+        <div class="hr-emp-stats">
+          ${kosongTag || ('Hadir ' + stat.hadir + ' • Sakit ' + stat.sakit + ' • Ijin ' + stat.ijin + (stat.lambat ? ' • <span class="warn">Telat ' + stat.lambat + '</span>' : ''))}
+        </div>
+      </div>
+      <div class="hr-emp-arrow">›</div>
+    </div>`;
+  }).join('');
+}
+
+function hrOpenDetailFromRekap(nama) {
+  hrDetailFromToday = false;
+  const emp = hrRekapCache.find(e => e.nama === nama);
+  hrShowDetail(nama, emp ? emp.absensi : [], hrSelectedMonth, hrSelectedYear, hrSelectedTanggal);
+}
+
+// ===== DETAIL KARYAWAN (dipakai oleh kedua card) =====
+function hrShowDetail(nama, absensi, month, year, tanggal) {
+  hrSelectedNama = nama;
+  document.getElementById('hrDetailNama').textContent = nama;
+  document.getElementById('hrDetailPeriodeLabel').textContent = tanggal
+    ? (tanggal + ' ' + HR_BULAN_NAMES[month - 1] + ' ' + year)
+    : (HR_BULAN_NAMES[month - 1] + ' ' + year);
+
+  const stat = hrHitungStat(absensi);
+  document.getElementById('hrDStatHadir').textContent = stat.hadir;
+  document.getElementById('hrDStatSakit').textContent = stat.sakit;
+  document.getElementById('hrDStatIjin').textContent = stat.ijin;
+  document.getElementById('hrDStatLambat').textContent = stat.lambat;
+
+  hrRenderDetailRiwayat(absensi, month, year);
+  hrGoPage('detail');
+}
+
+function hrBackToHome() { hrGoPage('home'); }
+
+function hrRenderDetailRiwayat(absensi, month, year) {
+  const container = document.getElementById('hrDetailRiwayat');
+  hrDetailRowsFlat = [];
+  if (!absensi.length) {
+    container.innerHTML = '<div class="card"><div class="riwayat-empty">Tidak ada absensi pada periode ini.</div></div>';
+    return;
+  }
+
+  const byDate = new Map();
+  absensi.forEach(row => {
+    if (!byDate.has(row.tanggal)) byDate.set(row.tanggal, []);
+    byDate.get(row.tanggal).push(row);
+  });
+
+  const sortedDates = [...byDate.keys()].sort((a, b) => b - a);
+
+  container.innerHTML = sortedDates.map(tgl => {
+    const itemsForDay = byDate.get(tgl);
+    const items = itemsForDay.slice().sort((a, b) => {
+      if (a.jam !== b.jam) return a.jam - b.jam;
+      return a.menit - b.menit;
+    });
+    const dayName = HR_DAY_NAMES[new Date(year, month - 1, tgl).getDay()];
+
+    // Cek: dinas lapangan tanpa absen masuk di hari itu
+    const hasMasuk = itemsForDay.some(r => r.jenisAbsen === 'Absen Masuk');
+    const hasDinas = itemsForDay.some(r => r.jenisAbsen === 'Dinas Lapangan dari Rumah');
+    const dinasBadge = (hasDinas && !hasMasuk)
+      ? '<span class="riwayat-dinas-badge">Dinas Lapangan (tanpa Absen Masuk)</span>' : '';
+
+    const itemsHtml = items.map(row => {
+      const icon = JENIS_ICON[row.jenisAbsen] || '📌';
+      const jam = String(row.jam).padStart(2, '0') + ':' + String(row.menit).padStart(2, '0');
+      const lambatTag = (row.jenisAbsen === 'Absen Masuk' && isLambat(row.jam, row.menit))
+        ? '<span class="riwayat-lambat">Terlambat</span>' : '';
+      const ketHtml = row.keterangan ? '<div class="riwayat-ket">' + escapeHtml(row.keterangan) + '</div>' : '';
+
+      // Simpan row lengkap (termasuk lokasi/foto/QR) ke array global, dipakai saat modal dibuka
+      hrDetailRowsFlat.push(row);
+      const idx = hrDetailRowsFlat.length - 1;
+      const hasDetail = row.fotoSelfie || row.latitude || row.statusQr || row.screenshotBukti;
+      const hintHtml = hasDetail ? '<div class="riwayat-item-hint">Ketuk untuk lihat foto & lokasi ›</div>' : '';
+
+      return `<div class="riwayat-item clickable" onclick="hrOpenAbsenDetail(${idx})">
+        <div class="riwayat-icon">${icon}</div>
+        <div class="riwayat-info">
+          <div class="riwayat-jenis">${escapeHtml(row.jenisAbsen)}${lambatTag}</div>
+          <div class="riwayat-meta">${jam}</div>
+          ${ketHtml}
+          ${hintHtml}
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div class="riwayat-day-card">
+      <div class="riwayat-day-title" style="display:flex; align-items:center; flex-wrap:wrap; gap:6px; font-family:var(--font-display); font-weight:800; font-size:13px; color:var(--ink); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:8px">${dayName}, Tgl ${tgl} ${dinasBadge}</div>
+      ${itemsHtml}
+    </div>`;
+  }).join('');
+}
+
+// ===== LAPORAN WA =====
+function hrGreetingNow() {
+  const h = new Date().getHours();
+  if (h < 11) return 'Pagi';
+  if (h < 15) return 'Siang';
+  return 'Sore';
+}
+
+function hrBuildLaporanText() {
+  const now = new Date();
+  const tanggalLabel = now.getDate() + ' ' + HR_BULAN_NAMES[now.getMonth()] + ' ' + now.getFullYear();
+
+  const tidakMasuk = [];
+  const terlambat = [];
+  const dinas = [];
+  const ijin = [];
+
+  (hrTodayCache || []).forEach(emp => {
+    const absensi = emp.absensi || [];
+    const hasMasuk = absensi.some(a => a.jenisAbsen === 'Absen Masuk');
+    const hasDinas = absensi.some(a => a.jenisAbsen === 'Dinas Lapangan dari Rumah');
+    const hasSakit = absensi.some(a => a.jenisAbsen === 'Sakit');
+    const hasIjinRumah = absensi.some(a => a.jenisAbsen === 'Ijin dari Rumah');
+    const hasIjinKantor = absensi.some(a => a.jenisAbsen === 'Ijin dari Kantor');
+    const masukRow = absensi.find(a => a.jenisAbsen === 'Absen Masuk');
+
+    // 1. Tidak masuk kerja: sakit, atau sama sekali tidak ada absen (masuk/dinas/ijin)
+    if (hasSakit) {
+      tidakMasuk.push(emp.nama + ' - Sakit');
+    } else if (!hasMasuk && !hasDinas && !hasIjinRumah && !hasIjinKantor) {
+      tidakMasuk.push(emp.nama);
+    }
+
+    // 2. Datang terlambat: dilihat dari jam record "Absen Masuk".
+    //    Tapi kalau sebelumnya dia sudah "Ijin dari Rumah", masuk telat TIDAK
+    //    dihitung terlambat (sudah dianggap masuk kategori Ijin Per jam).
+    if (masukRow && isLambat(masukRow.jam, masukRow.menit) && !hasIjinRumah) {
+      terlambat.push(emp.nama);
+    }
+
+    // 3. Dinas luar / WFH
+    if (hasDinas) dinas.push(emp.nama);
+
+    // 5. Ijin per jam: HANYA untuk jenis absen "Ijin dari Rumah".
+    //    "Ijin dari Kantor" tidak pernah masuk kategori ini.
+    if (hasIjinRumah) ijin.push(emp.nama);
+  });
+
+  const fmt = (arr) => arr.map(n => '- ' + n).join('\n');
+
+  let text = 'Selamat ' + hrGreetingNow() + ',\n';
+  text += 'Berikut report absensi tanggal ' + tanggalLabel + ':\n';
+
+  text += '1. Tidak masuk kerja (' + tidakMasuk.length + ' orang)\n';
+  if (tidakMasuk.length) text += fmt(tidakMasuk) + '\n';
+
+  text += '2. Datang terlambat (' + terlambat.length + ' orang)\n';
+  if (terlambat.length) text += fmt(terlambat) + '\n';
+
+  text += '3. Dinas luar / WFH (' + dinas.length + ' orang)\n';
+  if (dinas.length) text += fmt(dinas) + '\n';
+
+  // Tidak ada di data sistem — diisi manual oleh HR
+  text += '4. Libur ganti hari Minggu (0 orang)\n';
+  text += '[isi manual jika ada]\n';
+
+  text += '5. Ijin Per jam (' + ijin.length + ' orang)\n';
+  if (ijin.length) text += fmt(ijin);
+
+  return text.trim();
+}
+
+function hrOpenLaporanWA() {
+  const text = hrBuildLaporanText();
+  document.getElementById('hrLaporanText').value = text;
+  document.getElementById('hrCopyToast').textContent = '';
+  hrGoPage('report');
+}
+
+function hrBackToHomeFromReport() { hrGoPage('home'); }
+
+function hrSalinLaporan() {
+  const ta = document.getElementById('hrLaporanText');
+  ta.focus();
+  ta.select();
+  ta.setSelectionRange(0, 99999);
+  const toast = document.getElementById('hrCopyToast');
+  navigator.clipboard.writeText(ta.value).then(() => {
+    toast.textContent = '✓ Teks tersalin';
+  }).catch(() => {
+    try {
+      document.execCommand('copy');
+      toast.textContent = '✓ Teks tersalin';
+    } catch (e) {
+      toast.textContent = 'Gagal menyalin, silakan copy manual';
+    }
+  });
+}
+
+function hrKirimKeWA() {
+  const text = document.getElementById('hrLaporanText').value;
+  const url = 'https://wa.me/?text=' + encodeURIComponent(text);
+  window.open(url, '_blank');
+}
+
+// ===== MODAL DETAIL ABSEN (foto, lokasi, status QR) =====
+
+// Ubah link "Google Drive file" (dari file.getUrl()) jadi link gambar yang bisa
+// langsung dipakai di tag <img>. Syarat: file di folder harus di-share "Anyone with the link".
+function hrDriveThumbUrl(driveUrl) {
+  if (!driveUrl) return '';
+  const match = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (!match) return driveUrl;
+  return 'https://drive.google.com/thumbnail?id=' + match[1] + '&sz=w1000';
+}
+
+function hrRenderFotoBox(url, emptyText) {
+  if (!url) {
+    return '<div class="hr-modal-photo-empty">' + emptyText + '</div>';
+  }
+  const thumb = hrDriveThumbUrl(url);
+  return '<img class="hr-modal-photo" src="' + thumb + '" alt="Foto absen" '
+    + 'onerror="this.outerHTML=\'<div class=&quot;hr-modal-photo-empty&quot;>Foto belum bisa ditampilkan langsung. Buka manual lewat link di bawah.</div>\'">'
+    + '<a class="hr-modal-link" href="' + escapeHtml(url) + '" target="_blank" rel="noopener">Buka foto asli di Google Drive ↗</a>';
+}
+
+function hrOpenAbsenDetail(idx) {
+  const row = hrDetailRowsFlat[idx];
+  if (!row) return;
+
+  const jam = String(row.jam).padStart(2, '0') + ':' + String(row.menit).padStart(2, '0');
+  document.getElementById('hrAmTitle').textContent = row.jenisAbsen + ' • ' + jam;
+
+  // Foto selfie (atau screenshot kalau jenisnya Sakit dan tidak ada foto selfie)
+  const isSakitRow = row.jenisAbsen === 'Sakit';
+  document.getElementById('hrAmFotoBox').innerHTML = hrRenderFotoBox(
+    row.fotoSelfie,
+    isSakitRow ? 'Tidak ada selfie (absen Sakit).' : 'Tidak ada foto untuk absen ini.'
+  );
+
+  // Lokasi GPS
+  const lokasiBox = document.getElementById('hrAmLokasiBox');
+  if (row.latitude != null && row.longitude != null && row.latitude !== '' && row.longitude !== '') {
+    const mapsUrl = 'https://www.google.com/maps?q=' + row.latitude + ',' + row.longitude;
+    const embedUrl = 'https://maps.google.com/maps?q=' + row.latitude + ',' + row.longitude + '&z=16&output=embed';
+    lokasiBox.innerHTML = `
+      <iframe class="hr-modal-map" src="${embedUrl}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <div class="hr-modal-row"><div class="k">Latitude</div><div class="v">${escapeHtml(String(row.latitude))}</div></div>
+      <div class="hr-modal-row"><div class="k">Longitude</div><div class="v">${escapeHtml(String(row.longitude))}</div></div>
+      <a class="hr-modal-link" href="${mapsUrl}" target="_blank" rel="noopener">Buka lokasi di Google Maps ↗</a>`;
+  } else {
+    lokasiBox.innerHTML = '<div class="hr-modal-photo-empty">Lokasi tidak tercatat untuk absen ini.</div>';
+  }
+
+  // Lokasi QR Code
+  const qrBox = document.getElementById('hrAmQrBox');
+  if (row.statusQr || row.hasilQr) {
+    const isValid = row.statusQr === 'VALID';
+    qrBox.innerHTML = `
+      <div class="hr-modal-row">
+        <div class="k">Lokasi Scan</div>
+        <div class="v">${escapeHtml(row.hasilQr || '-')}</div>
+      </div>
+      <div class="hr-modal-row">
+        <div class="k">Validitas</div>
+        <div class="v ${isValid ? 'hr-qr-valid' : 'hr-qr-invalid'}">${escapeHtml(row.statusQr || '-')}</div>
+      </div>`;
+  } else {
+    qrBox.innerHTML = '<div class="hr-modal-photo-empty">Absen ini tidak menggunakan QR code.</div>';
+  }
+
+  // Screenshot bukti sakit
+  const ssSection = document.getElementById('hrAmScreenshotSection');
+  if (row.screenshotBukti) {
+    ssSection.style.display = 'block';
+    document.getElementById('hrAmScreenshotBox').innerHTML = hrRenderFotoBox(row.screenshotBukti, 'Tidak ada screenshot.');
+  } else {
+    ssSection.style.display = 'none';
+  }
+
+  // Keterangan
+  const ketSection = document.getElementById('hrAmKeteranganSection');
+  if (row.keterangan) {
+    ketSection.style.display = 'block';
+    document.getElementById('hrAmKeteranganBox').textContent = row.keterangan;
+  } else {
+    ketSection.style.display = 'none';
+  }
+
+  document.getElementById('hrAbsenModalBackdrop').classList.add('active');
+}
+
+function hrCloseAbsenDetail() {
+  document.getElementById('hrAbsenModalBackdrop').classList.remove('active');
 }
 
 // Daftarkan service worker biar app ini bisa di-"Install" ke home screen (PWA)
