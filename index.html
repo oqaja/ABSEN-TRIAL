@@ -453,7 +453,7 @@
   <div class="nav-item" id="nav-leaderboard" onclick="goPage('leaderboard')">
     <span class="nav-icon">🏆</span><span class="nav-label">Papan</span>
   </div>
-  <div class="nav-item" id="nav-profil" onclick="goPage('profil')">
+  <div class="nav-item" id="nav-profil" style="-webkit-touch-callout:none; user-select:none;">
     <span class="nav-icon">👤</span><span class="nav-label">Profil</span>
   </div>
 </nav>
@@ -783,6 +783,38 @@ function goPage(page) {
   if (page === 'profil') renderProfil();
   window.scrollTo(0, 0);
 }
+
+// ===== Nav Profil: tap biasa = ke halaman Profil, TAHAN ~700ms = ke Dashboard HR (hr.html) =====
+// Sengaja gak ada indikator visual apa pun di UI (biar HR key + token yang jadi lapisan
+// keamanan beneran, ini cuma jalan pintas biar HR gak perlu ngetik/inget URL hr.html).
+(function setupNavProfilLongPress() {
+  const el = document.getElementById('nav-profil');
+  const HOLD_MS = 700;
+  let pressTimer = null;
+  let longPressFired = false;
+
+  function startPress() {
+    longPressFired = false;
+    pressTimer = setTimeout(() => {
+      longPressFired = true;
+      if (navigator.vibrate) navigator.vibrate(30);
+      window.location.href = 'hr.html';
+    }, HOLD_MS);
+  }
+  function cancelPress() {
+    clearTimeout(pressTimer);
+  }
+
+  el.addEventListener('pointerdown', startPress);
+  el.addEventListener('pointerup', cancelPress);
+  el.addEventListener('pointerleave', cancelPress);
+  el.addEventListener('pointercancel', cancelPress);
+
+  el.addEventListener('click', () => {
+    if (longPressFired) { longPressFired = false; return; } // udah dialihin ke hr.html, jangan ikut pindah ke Profil
+    goPage('profil');
+  });
+})();
 
 // ===== APP GATE (wajib login/daftar dulu begitu app dibuka) =====
 // Beda dengan login di tab Absen: ini nge-gate SELURUH app (Home/Papan/Profil ikut kekunci),
