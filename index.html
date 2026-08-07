@@ -453,7 +453,7 @@
   <div class="nav-item" id="nav-leaderboard" onclick="goPage('leaderboard')">
     <span class="nav-icon">🏆</span><span class="nav-label">Papan</span>
   </div>
-  <div class="nav-item" id="nav-profil" style="-webkit-touch-callout:none; user-select:none;">
+  <div class="nav-item" id="nav-profil">
     <span class="nav-icon">👤</span><span class="nav-label">Profil</span>
   </div>
 </nav>
@@ -784,35 +784,32 @@ function goPage(page) {
   window.scrollTo(0, 0);
 }
 
-// ===== Nav Profil: tap biasa = ke halaman Profil, TAHAN ~700ms = ke Dashboard HR (hr.html) =====
+// ===== Nav Profil: 1x klik = ke halaman Profil, 3x klik cepat (<600ms) = ke Dashboard HR (hr.html) =====
 // Sengaja gak ada indikator visual apa pun di UI (biar HR key + token yang jadi lapisan
 // keamanan beneran, ini cuma jalan pintas biar HR gak perlu ngetik/inget URL hr.html).
-(function setupNavProfilLongPress() {
+(function setupNavProfilTripleTap() {
   const el = document.getElementById('nav-profil');
-  const HOLD_MS = 700;
-  let pressTimer = null;
-  let longPressFired = false;
-
-  function startPress() {
-    longPressFired = false;
-    pressTimer = setTimeout(() => {
-      longPressFired = true;
-      if (navigator.vibrate) navigator.vibrate(30);
-      window.location.href = 'hr.html';
-    }, HOLD_MS);
-  }
-  function cancelPress() {
-    clearTimeout(pressTimer);
-  }
-
-  el.addEventListener('pointerdown', startPress);
-  el.addEventListener('pointerup', cancelPress);
-  el.addEventListener('pointerleave', cancelPress);
-  el.addEventListener('pointercancel', cancelPress);
+  const TAP_WINDOW_MS = 600;
+  let tapCount = 0;
+  let resetTimer = null;
 
   el.addEventListener('click', () => {
-    if (longPressFired) { longPressFired = false; return; } // udah dialihin ke hr.html, jangan ikut pindah ke Profil
-    goPage('profil');
+    tapCount++;
+    clearTimeout(resetTimer);
+
+    if (tapCount >= 3) {
+      tapCount = 0;
+      if (navigator.vibrate) navigator.vibrate(30);
+      window.location.href = 'hr.html';
+      return;
+    }
+
+    // Tunggu sebentar, siapa tau ada klik berikutnya nyusul (jadi bagian dari triple tap).
+    // Kalau gak ada, baru dianggap klik tunggal biasa -> pindah ke Profil.
+    resetTimer = setTimeout(() => {
+      tapCount = 0;
+      goPage('profil');
+    }, TAP_WINDOW_MS);
   });
 })();
 
