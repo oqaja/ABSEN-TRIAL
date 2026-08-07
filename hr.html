@@ -358,34 +358,73 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('hariIniLabel').textContent =
     DAY_NAMES[now.getDay()] + ', ' + now.getDate() + ' ' + BULAN_NAMES[now.getMonth()] + ' ' + now.getFullYear();
 
-  const savedKey = localStorage.getItem('hr_key');
-  if (savedKey) {
-    document.getElementById('hrKeyInput').value = savedKey;
-    cekHrKey(true);
+  // Kalau ada token tersimpan, langsung coba masuk (server yang tentuin masih valid/expired,
+  // bukan cuma dicek di sini). Kalau ternyata udah expired, loadToday/loadRekap yang bakal
+  // nendang balik ke gate lewat handleUnauthorized().
+  const savedToken = localStorage.getItem('hr_token');
+  if (savedToken) {
+    goPage('home');
+    loadToday();
+    loadRekap();
   }
 });
 
-function cekHrKey(silent) {
+async function cekHrKey() {
   const key = document.getElementById('hrKeyInput').value.trim();
   const err = document.getElementById('gateErrorBox');
-  if (!key) { if (!silent) err.innerHTML = '<div class="status-box status-fail">HR Key wajib diisi</div>'; return; }
+  const btn = document.querySelector('#page-gate .btn');
+  if (!key) { err.innerHTML = '<div class="status-box status-fail">HR Key wajib diisi</div>'; return; }
   err.innerHTML = '';
-  localStorage.setItem('hr_key', key);
-  goPage('home');
-  loadToday();
-  loadRekap();
+  btn.disabled = true;
+  btn.textContent = 'Memeriksa...';
+
+  try {
+    // Key cuma dikirim SEKALI di sini, lewat POST body (bukan nempel di URL).
+    // Kalau cocok, server balikin token sementara yang dipakai buat semua request selanjutnya.
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'hrLogin', key: key })
+    });
+    const rawText = await res.text();
+    if (rawText.trim().startsWith('<')) throw new Error('HTML_RESPONSE');
+    const data = JSON.parse(rawText);
+
+    if (data.result !== 'success' || !data.token) {
+      err.innerHTML = '<div class="status-box status-fail">HR Key salah.</div>';
+      return;
+    }
+
+    localStorage.setItem('hr_token', data.token);
+    document.getElementById('hrKeyInput').value = '';
+    goPage('home');
+    loadToday();
+    loadRekap();
+  } catch (e) {
+    err.innerHTML = '<div class="status-box status-fail">⚠️ Gagal menghubungi server. Coba lagi.</div>';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Masuk';
+  }
 }
 
 function logoutHr() {
-  localStorage.removeItem('hr_key');
+  localStorage.removeItem('hr_token');
   document.getElementById('hrKeyInput').value = '';
   goPage('gate');
 }
 
+// Dipanggil tiap kali server bilang token invalid/expired: bersihin token & balik ke gate,
+// biar HR gak lihat data basi dan harus login ulang.
+function handleUnauthorized(errBox) {
+  localStorage.removeItem('hr_token');
+  errBox.innerHTML = '<div class="status-box status-fail">Sesi HR berakhir. Silakan login ulang.</div>';
+  setTimeout(() => goPage('gate'), 900);
+}
+
 // ===== FETCH HELPER =====
 async function fetchRekapHR(month, year) {
-  const key = localStorage.getItem('hr_key') || '';
-  const url = SCRIPT_URL + '?action=getRekapHR&key=' + encodeURIComponent(key) + '&month=' + month + '&year=' + year;
+  const token = localStorage.getItem('hr_token') || '';
+  const url = SCRIPT_URL + '?action=getRekapHR&token=' + encodeURIComponent(token) + '&month=' + month + '&year=' + year;
   const res = await fetch(url, { redirect: 'follow' });
   const rawText = await res.text();
   if (rawText.trim().startsWith('<')) {
@@ -411,7 +450,7 @@ async function loadToday() {
 
     if (data.result !== 'success') {
       if (data.message === 'Unauthorized') {
-        errBox.innerHTML = '<div class="status-box status-fail">HR Key salah. Silakan keluar dan coba lagi.</div>';
+        handleUnauthorized(errBox);
       } else {
         errBox.innerHTML = '<div class="status-box status-fail">⚠️ ' + escapeHtml(data.message || 'Error') + '</div>';
       }
@@ -518,7 +557,7 @@ async function loadRekap() {
 
     if (data.result !== 'success') {
       if (data.message === 'Unauthorized') {
-        listErrorBox.innerHTML = '<div class="status-box status-fail">HR Key salah. Silakan keluar dan coba lagi.</div>';
+        handleUnauthorized(listErrorBox);
       } else {
         listErrorBox.innerHTML = '<div class="status-box status-fail">⚠️ ' + escapeHtml(data.message || 'Error') + '</div>';
       }
