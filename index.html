@@ -1265,8 +1265,10 @@ async function gateVerifikasiPin() {
 // pengamanan sebenarnya tetap di server (setiap endpoint role dicek ulang
 // pakai token), jadi menu yang disembunyikan bukan satu-satunya penghalang.
 
+// Halaman Kreatif dilayani dari folder terpisah di domain yang sama.
+// Karena satu domain, token login tetap terbaca di sana.
 const MENU_ROLE = {
-  kreatif:  { emoji: '🎨', judul: 'Report Kreatif',  sub: 'Isi dan lihat laporan tugas tim Kreatif',  file: 'kreatif.html'  },
+  kreatif:  { emoji: '🎨', judul: 'Report Kreatif',  sub: 'Insight platform & progres konten harian', file: '/REPORT-KREATIF/' },
   produksi: { emoji: '🏭', judul: 'Report Produksi', sub: 'Isi dan lihat laporan tugas tim Produksi', file: 'produksi.html' }
 };
 
